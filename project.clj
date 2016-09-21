@@ -4,5 +4,5 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [witan.workspace-api "0.1.19"]
+                 [witan.workspace-api "0.1.20"]
                  [prismatic/schema "1.1.3"]])
