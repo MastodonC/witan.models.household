@@ -1,5 +1,5 @@
 (ns witan.models.household
-  (:require [witan.workspace-api :refer [defworkflowfn definput]]
+  (:require [witan.workspace-api :refer [defworkflowfn definput defworkflowoutput]]
             [witan.models.schemas :as s]))
 
 ;; Input functions
@@ -94,6 +94,18 @@
    :witan/version "1.0.0"
    :witan/input-schema {:total-households s/TotalHouseholds
                         :occupancy-rate s/OccupancyRate}
-   :witan/output-schema {:dwellings s/Dwellings}}
+   :witan/output-schema {:dwellings s/Dwellings
+                         :total-households s/TotalHouseholds}}
   [{:keys [total-households occupancy-rate]} _]
-  {:dwellings {}})
+  {:dwellings {}
+   :total-households total-households})
+
+(defworkflowoutput output-results-1-0-0
+  "Returns the total households and dwellings"
+  {:witan/name :hh-model/output-results
+   :witan/version "1.0.0"
+   :witan/input-schema {:total-households s/TotalHouseholds
+                        :dwellings s/Dwellings}}
+  [{:keys [total-households dwellings]} _]
+  {:total-households total-households
+   :dwellings dwellings})
