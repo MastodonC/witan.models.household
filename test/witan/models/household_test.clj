@@ -7,77 +7,20 @@
             [witan.workspace-executor.core :as wex]))
 
 ;; Building the workspace
-(def test-inputs {:resident-popn ""
-                  :institutional-popn ""
-                  :household-rates ""
-                  :vacancy-rates ""
-                  :second-homes-rates ""})
-
-(def test-params {})
+(def test-inputs {:input-resident-popn :resident-popn
+                  :input-institutional-popn :institutional-popn
+                  :input-household-rates :household-rates
+                  :input-vacancy-rates :vacancy-rates
+                  :input-second-homes-rates :second-homes-rates})
 
 (defn read-inputs [file schema]
   {})
 
-(defn tasks [inputs params]
-  { ;; Inputs
-   :input-resident-popn {:var #'witan.models.household/get-resident-popn-1-0-0
-                         :params {:src (:resident-popn inputs)
-                                  :key :resident-popn
-                                  :fn read-inputs}}
-   :input-institutional-popn {:var #'witan.models.household/get-institutional-popn-1-0-0
-                              :params {:src (:institutional-popn inputs)
-                                       :key :institutional-popn
-                                       :fn read-inputs}}
-   :input-household-rates {:var #'witan.models.household/get-household-rates-1-0-0
-                           :params {:src (:household-rates inputs)
-                                    :key :household-rates
-                                    :fn read-inputs}}
-   :input-vacancy-rates {:var #'witan.models.household/get-vacancy-rates-1-0-0
-                         :params {:src (:vacancy-rates inputs)
-                                  :key :vacancy-rates
-                                  :fn read-inputs}}
-   :input-second-homes-rates {:var #'witan.models.household/get-second-homes-rates-1-0-0
-                              :params {:src (:second-homes-rates inputs)
-                                       :key :second-homes-rates
-                                       :fn read-inputs}}
-   ;; Calcs
-   :calculate-household-popn {:var #'witan.models.household/calc-household-popn-1-0-0}
-   :group-household-popn {:var #'witan.models.household/grp-household-popn-1-0-0}
-   :calculate-households {:var #'witan.models.household/calc-households-1-0-0}
-   :calculate-total-households {:var #'witan.models.household/calc-total-households-1-0-0}
-   :calculate-occupancy-rate {:var #'witan.models.household/calc-occupancy-rate-1-0-0}
-   :calculate-dwellings {:var #'witan.models.household/calc-dwellings-1-0-0}
-   ;; Outputs
-   :output-hh-and-dwellings {:var #'witan.models.household/output-results-1-0-0}})
-
-(defn get-meta
-  [v]
-  (-> v :var meta :witan/metadata))
-
-(defn make-contracts
-  [task-coll]
-  (distinct (mapv (fn [[k v]] (get-meta v)) task-coll)))
-
-(defn make-catalog
-  [task-coll]
-  (mapv (fn [[k v]]
-          (let [m (hash-map :witan/name k
-                            :witan/version (:witan/version (get-meta v))
-                            :witan/type (:witan/type (get-meta v))
-                            :witan/fn (:witan/name (get-meta v)))]
-            (if (:params v)
-              (assoc m :witan/params (:params v))
-              m))) task-coll))
-
-(defn run-workspace
-  [inputs params]
-  (let [tasks (tasks inputs params)
-        workspace {:workflow (:workflow m/household-model)
-                   :catalog (make-catalog tasks)
-                   :contracts (make-contracts tasks)}
-        workspace'    (s/with-fn-validation (wex/build! workspace))
-        result        (wex/run!! workspace' {})]
-    (first result)))
+(defn fix-input
+  [input]
+  (assoc-in input [:witan/params] {:src ""
+                                   :key (get test-inputs (:witan/name input))
+                                   :fn read-inputs}))
 
 ;; Testing the model and the workspace
 (deftest household-model-test
@@ -102,7 +45,13 @@
                (set model-ns-fns)))))))
 
 (deftest household-workspace-test
-  (let [ws-result (run-workspace test-inputs test-params)]
-    (is ws-result)
-    (is (:total-households ws-result))
-    (is (:dwellings ws-result))))
+  (let [fixed-catalog (mapv #(if (= (:witan/type %) :input) (fix-input %) %)
+                            (:catalog m/household-model))
+        workspace     {:workflow  (:workflow m/household-model)
+                       :catalog   fixed-catalog
+                       :contracts (p/available-fns (m/model-library))}
+        workspace'    (s/with-fn-validation (wex/build! workspace))
+        result        (first (wex/run!! workspace' {}))]
+    (is result)
+    (is (:total-households result))
+    (is (:dwellings result))))
