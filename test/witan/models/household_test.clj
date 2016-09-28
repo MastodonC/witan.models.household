@@ -33,10 +33,10 @@
       (is catalog)
       (is metadata))
     (testing "The catalog entries match funtions in the model-library"
-      (doseq [{:keys [witan/name witan/fn witan/version witan/params]} catalog]
-        (let [fnc (some #(when (and (= fn (:witan/name %))
-                                    (= version (:witan/version %))) %) funs)]
-          (is fnc))))
+      (for [{:keys [witan/name witan/fn witan/version witan/params]} catalog
+            :let [fnc (some #(when (and (= fn (:witan/name %))
+                                        (= version (:witan/version %))) %) funs)]]
+        (is fnc)))
     (testing "The catalog entries are existing functions"
       (let [library-fns (map #(:witan/impl %) funs)
             model-ns-list (map str (keys (ns-publics 'witan.models.household)))

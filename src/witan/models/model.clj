@@ -21,7 +21,9 @@
    [:input-second-homes-rates :calculate-occupancy-rate]
    [:calculate-total-households :calculate-dwellings]
    [:calculate-occupancy-rate :calculate-dwellings]
-   [:calculate-dwellings :output-hh-and-dwellings]])
+   [:calculate-total-households :gather-outputs]
+   [:calculate-dwellings :gather-outputs]
+   [:gather-outputs :final-outputs]])
 
 (def hh-model-catalog
   [;; Input functions
@@ -70,11 +72,15 @@
     :witan/version "1.0.0"
     :witan/type :function
     :witan/fn :hh-model/calc-dwellings}
-   ;; Output function
-   {:witan/name :output-hh-and-dwellings
+   ;; Outputs
+   {:witan/name :gather-outputs
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/gather-outputs}
+   {:witan/name :final-outputs
     :witan/version "1.0.0"
     :witan/type :output
-    :witan/fn :hh-model/output-results}])
+    :witan/fn :hh-model/final-outputs}])
 
 (defmodel household-model
   "The household model"
@@ -99,6 +105,7 @@
        hh/calc-total-households-1-0-0
        hh/calc-occupancy-rate-1-0-0
        hh/calc-dwellings-1-0-0
-       hh/output-results-1-0-0))
+       hh/gather-outputs-1-0-0
+       hh/final-outputs-1-0-0))
     (available-models [_]
       (map-model-meta household-model))))
