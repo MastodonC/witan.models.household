@@ -12,7 +12,7 @@
    [:calculate-household-popn :group-household-popn]
 
    ;; Households
-   [:input-household-rates :calculate-households]
+   [:input-household-representative-rates :calculate-households]
    [:group-household-popn :calculate-households]
    [:calculate-households :calculate-total-households]
 
@@ -21,9 +21,9 @@
    [:input-second-homes-rates :calculate-occupancy-rate]
    [:calculate-total-households :calculate-dwellings]
    [:calculate-occupancy-rate :calculate-dwellings]
-   [:calculate-total-households :gather-outputs]
-   [:calculate-dwellings :gather-outputs]
-   [:gather-outputs :final-outputs]])
+   [:calculate-total-households :collate-outputs]
+   [:calculate-dwellings :collate-outputs]
+   [:collate-outputs :final-outputs]])
 
 (def hh-model-catalog
   [;; Input functions
@@ -35,10 +35,10 @@
     :witan/version "1.0.0"
     :witan/type :input
     :witan/fn :hh-model/get-institutional-popn}
-   {:witan/name :input-household-rates
+   {:witan/name :input-household-representative-rates
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-household-rates}
+    :witan/fn :hh-model/get-household-representative-rates}
    {:witan/name :input-vacancy-rates
     :witan/version "1.0.0"
     :witan/type :input
@@ -73,10 +73,10 @@
     :witan/type :function
     :witan/fn :hh-model/calc-dwellings}
    ;; Outputs
-   {:witan/name :gather-outputs
+   {:witan/name :collate-outputs
     :witan/version "1.0.0"
     :witan/type :function
-    :witan/fn :hh-model/gather-outputs}
+    :witan/fn :hh-model/collate-outputs}
    {:witan/name :final-outputs
     :witan/version "1.0.0"
     :witan/type :output
@@ -96,7 +96,7 @@
       (map-fn-meta
        hh/get-resident-popn-1-0-0
        hh/get-institutional-popn-1-0-0
-       hh/get-household-rates-1-0-0
+       hh/get-household-representative-rates-1-0-0
        hh/get-vacancy-rates-1-0-0
        hh/get-second-homes-rates-1-0-0
        hh/calc-household-popn-1-0-0
@@ -105,7 +105,7 @@
        hh/calc-total-households-1-0-0
        hh/calc-occupancy-rate-1-0-0
        hh/calc-dwellings-1-0-0
-       hh/gather-outputs-1-0-0
+       hh/collate-outputs-1-0-0
        hh/final-outputs-1-0-0))
     (available-models [_]
       (map-model-meta household-model))))

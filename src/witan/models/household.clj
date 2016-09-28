@@ -16,11 +16,11 @@
    :witan/key :institutional-popn
    :witan/schema s/InstitutionalPopulation})
 
-(definput get-household-rates-1-0-0
-  {:witan/name :hh-model/get-household-rates
+(definput get-household-representative-rates-1-0-0
+  {:witan/name :hh-model/get-household-representative-rates
    :witan/version "1.0.0"
-   :witan/key :household-rates
-   :witan/schema s/HouseholdRates})
+   :witan/key :household-representative-rates
+   :witan/schema s/HouseholdRepresentativeRates})
 
 (definput get-vacancy-rates-1-0-0
   {:witan/name :hh-model/get-vacancy-rates
@@ -61,7 +61,7 @@
   Returns the number of households."
   {:witan/name :hh-model/calc-households
    :witan/version "1.0.0"
-   :witan/input-schema {:household-rates s/HouseholdRates
+   :witan/input-schema {:household-representative-rates s/HouseholdRepresentativeRates
                         :household-popn-grp s/HouseholdPopulationGrouped}
    :witan/output-schema {:households s/Households}}
   [{:keys [household-rates household-popn-grp]} _]
@@ -100,9 +100,9 @@
   {:dwellings {}})
 
 ;; Functions to handle outputs
-(defworkflowfn gather-outputs-1-0-0
+(defworkflowfn collate-outputs-1-0-0
   "Returns the total households and the dwellings"
-  {:witan/name :hh-model/gather-outputs
+  {:witan/name :hh-model/collate-outputs
    :witan/version "1.0.0"
    :witan/input-schema {:total-households s/TotalHouseholds
                         :dwellings s/Dwellings}

@@ -7,7 +7,7 @@
 (def InstitutionalPopulation
   {})
 
-(def HouseholdRates
+(def HouseholdRepresentativeRates
   {})
 
 (def VacancyRates
