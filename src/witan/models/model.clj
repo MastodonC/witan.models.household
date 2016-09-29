@@ -21,12 +21,11 @@
    [:input-second-homes-rates :calculate-occupancy-rate]
    [:calculate-total-households :calculate-dwellings]
    [:calculate-occupancy-rate :calculate-dwellings]
-   [:calculate-total-households :collate-outputs]
-   [:calculate-dwellings :collate-outputs]
-   [:collate-outputs :final-outputs]])
+   [:calculate-total-households :output-households]
+   [:calculate-dwellings :output-dwellings]])
 
 (def hh-model-catalog
-  [;; Input functions
+  [ ;; Input functions
    {:witan/name :input-resident-popn
     :witan/version "1.0.0"
     :witan/type :input
@@ -73,14 +72,14 @@
     :witan/type :function
     :witan/fn :hh-model/calc-dwellings}
    ;; Outputs
-   {:witan/name :collate-outputs
-    :witan/version "1.0.0"
-    :witan/type :function
-    :witan/fn :hh-model/collate-outputs}
-   {:witan/name :final-outputs
+   {:witan/name :output-households
     :witan/version "1.0.0"
     :witan/type :output
-    :witan/fn :hh-model/final-outputs}])
+    :witan/fn :hh-model/output-households}
+   {:witan/name :output-dwellings
+    :witan/version "1.0.0"
+    :witan/type :output
+    :witan/fn :hh-model/output-dwellings}])
 
 (defmodel household-model
   "The household model"
@@ -105,7 +104,7 @@
        hh/calc-total-households-1-0-0
        hh/calc-occupancy-rate-1-0-0
        hh/calc-dwellings-1-0-0
-       hh/collate-outputs-1-0-0
-       hh/final-outputs-1-0-0))
+       hh/output-households-1-0-0
+       hh/output-dwellings-1-0-0))
     (available-models [_]
       (map-model-meta household-model))))

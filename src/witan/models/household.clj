@@ -100,24 +100,18 @@
   {:dwellings {}})
 
 ;; Functions to handle outputs
-(defworkflowfn collate-outputs-1-0-0
+(defworkflowoutput output-households-1-0-0
   "Returns the total households and the dwellings"
-  {:witan/name :hh-model/collate-outputs
+  {:witan/name :hh-model/output-households
    :witan/version "1.0.0"
-   :witan/input-schema {:total-households s/TotalHouseholds
-                        :dwellings s/Dwellings}
-   :witan/output-schema {:total-households s/TotalHouseholds
-                        :dwellings s/Dwellings}}
-  [{:keys [total-households dwellings]} _]
-  {:dwellings dwellings
-   :total-households total-households})
+   :witan/input-schema {:total-households s/TotalHouseholds}}
+  [{:keys [total-households]} _]
+  {:total-households total-households})
 
-(defworkflowoutput final-outputs-1-0-0
+(defworkflowoutput output-dwellings-1-0-0
   "Returns the total households and the dwellings"
-  {:witan/name :hh-model/final-outputs
+  {:witan/name :hh-model/output-dwellings
    :witan/version "1.0.0"
-   :witan/input-schema {:total-households s/TotalHouseholds
-                        :dwellings s/Dwellings}}
-  [{:keys [total-households dwellings]} _]
-  {:dwellings dwellings
-   :total-households total-households})
+   :witan/input-schema {:dwellings s/Dwellings}}
+  [{:keys [dwellings]} _]
+  {:dwellings dwellings})

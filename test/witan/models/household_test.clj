@@ -66,7 +66,7 @@
                        :catalog   fixed-catalog
                        :contracts (p/available-fns (m/model-library))}
         workspace'    (s/with-fn-validation (wex/build! workspace))
-        result        (first (wex/run!! workspace' {}))]
+        result        (apply merge (wex/run!! workspace' {}))]
     (is result)
     (is (:total-households result))
     (is (:dwellings result))))
