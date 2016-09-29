@@ -1,11 +1,14 @@
-(ns witan.models.model
-  (:require [witan.workspace-api :refer [defmodel]]
-            [witan.workspace-api.protocols :as p]
-            [witan.workspace-api.utils :refer [map-fn-meta
-                                               map-model-meta]]
-            [witan.models.household :as hh]))
+(ns ^{:doc "Defines the structure of the model for it
+            to be run by a workspace executor"}
+    witan.models.model
+    (:require [witan.workspace-api :refer [defmodel]]
+              [witan.workspace-api.protocols :as p]
+              [witan.workspace-api.utils :refer [map-fn-meta
+                                                 map-model-meta]]
+              [witan.models.household :as hh]))
 
 (def hh-model-workflow
+  "Defines each step of the household model"
   [;; Household population
    [:input-resident-popn :calculate-household-popn]
    [:input-institutional-popn :calculate-household-popn]
@@ -25,6 +28,7 @@
    [:calculate-dwellings :output-dwellings]])
 
 (def hh-model-catalog
+  "Provides metadata for each step of the household model"
   [ ;; Input functions
    {:witan/name :input-resident-popn
     :witan/version "1.0.0"
@@ -82,13 +86,16 @@
     :witan/fn :hh-model/output-dwellings}])
 
 (defmodel household-model
-  "The household model"
+  "Defines the household model. Contains metadata,
+   and the model workflow + catalog."
   {:witan/name :hh-model/household-model
    :witan/version "1.0.0"}
   {:workflow hh-model-workflow
    :catalog hh-model-catalog})
 
 (defn model-library
+  "Lists all the available functions to execute each
+   step of the model and list the available model."
   []
   (reify p/IModelLibrary
     (available-fns [_]

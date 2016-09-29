@@ -6,23 +6,7 @@
             [witan.workspace-api.protocols :as p]
             [witan.workspace-executor.core :as wex]))
 
-;; Building the workspace
-(def test-inputs {:input-resident-popn :resident-popn
-                  :input-institutional-popn :institutional-popn
-                  :input-household-rates :household-rates
-                  :input-vacancy-rates :vacancy-rates
-                  :input-second-homes-rates :second-homes-rates})
-
-(defn read-inputs [file schema]
-  {})
-
-(defn fix-input
-  [input]
-  (assoc-in input [:witan/params] {:src ""
-                                   :key (get test-inputs (:witan/name input))
-                                   :fn read-inputs}))
-
-;; Testing the model and the workspace
+;; Testing the structure of the model
 (deftest validate-models
   (let [library (m/model-library)
         funs    (p/available-fns library)]
@@ -59,14 +43,33 @@
           (testing (str "\n> testing contract function " name " " version)
             (is (= 1 num))))))))
 
+;; Testing the model can be run by the workspace executor
+;; Helpers
+(def test-inputs {:input-resident-popn :resident-popn
+                  :input-institutional-popn :institutional-popn
+                  :input-household-rates :household-rates
+                  :input-vacancy-rates :vacancy-rates
+                  :input-second-homes-rates :second-homes-rates})
+
+(defn read-inputs [file schema]
+  {})
+
+(defn fix-input
+  [input]
+  (assoc-in input [:witan/params] {:src ""
+                                   :key (get test-inputs (:witan/name input))
+                                   :fn read-inputs}))
+
+;; Test
 (deftest household-workspace-test
-  (let [fixed-catalog (mapv #(if (= (:witan/type %) :input) (fix-input %) %)
-                            (:catalog m/household-model))
-        workspace     {:workflow  (:workflow m/household-model)
-                       :catalog   fixed-catalog
-                       :contracts (p/available-fns (m/model-library))}
-        workspace'    (s/with-fn-validation (wex/build! workspace))
-        result        (apply merge (wex/run!! workspace' {}))]
-    (is result)
-    (is (:total-households result))
-    (is (:dwellings result))))
+  (testing "The model is run on the workspace and returns the outputs expected"
+      (let [fixed-catalog (mapv #(if (= (:witan/type %) :input) (fix-input %) %)
+                                (:catalog m/household-model))
+            workspace     {:workflow  (:workflow m/household-model)
+                           :catalog   fixed-catalog
+                           :contracts (p/available-fns (m/model-library))}
+            workspace'    (s/with-fn-validation (wex/build! workspace))
+            result        (apply merge (wex/run!! workspace' {}))]
+        (is result)
+        (is (:total-households result))
+        (is (:dwellings result)))))
