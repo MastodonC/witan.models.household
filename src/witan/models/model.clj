@@ -1,11 +1,11 @@
 (ns ^{:doc "Defines the structure of the model for it
             to be run by a workspace executor"}
-    witan.models.model
-    (:require [witan.workspace-api :refer [defmodel]]
-              [witan.workspace-api.protocols :as p]
-              [witan.workspace-api.utils :refer [map-fn-meta
-                                                 map-model-meta]]
-              [witan.models.household :as hh]))
+ witan.models.model
+  (:require [witan.workspace-api :refer [defmodel]]
+            [witan.workspace-api.protocols :as p]
+            [witan.workspace-api.utils :refer [map-fn-meta
+                                               map-model-meta]]
+            [witan.models.household :as hh]))
 
 (def hh-model-workflow
   "Defines each step of the household model"
@@ -29,7 +29,7 @@
 
 (def hh-model-catalog
   "Provides metadata for each step of the household model"
-  [ ;; Input functions
+  [;; Input functions
    {:witan/name :input-resident-popn
     :witan/version "1.0.0"
     :witan/type :input

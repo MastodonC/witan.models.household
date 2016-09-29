@@ -63,13 +63,13 @@
 ;; Test
 (deftest household-workspace-test
   (testing "The model is run on the workspace and returns the outputs expected"
-      (let [fixed-catalog (mapv #(if (= (:witan/type %) :input) (fix-input %) %)
-                                (:catalog m/household-model))
-            workspace     {:workflow  (:workflow m/household-model)
-                           :catalog   fixed-catalog
-                           :contracts (p/available-fns (m/model-library))}
-            workspace'    (s/with-fn-validation (wex/build! workspace))
-            result        (apply merge (wex/run!! workspace' {}))]
-        (is result)
-        (is (:total-households result))
-        (is (:dwellings result)))))
+    (let [fixed-catalog (mapv #(if (= (:witan/type %) :input) (fix-input %) %)
+                              (:catalog m/household-model))
+          workspace     {:workflow  (:workflow m/household-model)
+                         :catalog   fixed-catalog
+                         :contracts (p/available-fns (m/model-library))}
+          workspace'    (s/with-fn-validation (wex/build! workspace))
+          result        (apply merge (wex/run!! workspace' {}))]
+      (is result)
+      (is (:total-households result))
+      (is (:dwellings result)))))

@@ -1,10 +1,10 @@
 (ns ^{:doc "Defines the functions for each step of the household model.
             The functions are defined using macros that make it easy to
             be packaged into a datastructure to be run by a workspace executor"}
-    witan.models.household
-    (:require [witan.workspace-api :refer [defworkflowfn definput defworkflowoutput]]
-              [witan.models.schemas :as s]
-              [schema.core :as sc]))
+ witan.models.household
+  (:require [witan.workspace-api :refer [defworkflowfn definput defworkflowoutput]]
+            [witan.models.schemas :as s]
+            [schema.core :as sc]))
 
 ;; Functions to retrieve the five datasets needed
 (definput get-resident-popn-1-0-0
