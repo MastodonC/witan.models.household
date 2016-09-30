@@ -1,5 +1,7 @@
 # witan.models.household
 
+[![Build Status](https://circleci.com/gh/MastodonC/witan.models.household.svg?style=shield)](https://circleci.com/gh/MastodonC/witan.models.household) [![Dependencies Status](https://jarkeeper.com/MastodonC/witan.models.household/status.svg)](https://jarkeeper.com/MastodonC/witan.models.household)
+
 
 ## Description
 
@@ -49,6 +51,12 @@ When running the model in the workspace executor from the repl it's very useful 
 ```Clojure
 (witan.workspace-api/set-api-logging! println)
 ```
+
+
+**Note**:
+
+The version of the code containing the structure of the model for it to run using the workspace executor can be accessed by selecting the tag `model-skeleton`.
+
 
 ## License
 

@@ -1,9 +1,12 @@
-(ns witan.models.household
+(ns ^{:doc "Defines the functions for each step of the household model.
+            The functions are defined using macros that make it easy to
+            be packaged into a datastructure to be run by a workspace executor"}
+ witan.models.household
   (:require [witan.workspace-api :refer [defworkflowfn definput defworkflowoutput]]
             [witan.models.schemas :as s]
             [schema.core :as sc]))
 
-;; Input functions
+;; Functions to retrieve the five datasets needed
 (definput get-resident-popn-1-0-0
   {:witan/name :hh-model/get-resident-popn
    :witan/version "1.0.0"
@@ -34,7 +37,7 @@
    :witan/key :second-homes-rates
    :witan/schema s/SecondHomesRates})
 
-;; Calculation functions
+;; Functions defining calculations
 (defworkflowfn calc-household-popn-1-0-0
   "Takes in the resident and institutional populations.
    Returns the household population."
@@ -99,7 +102,7 @@
   [{:keys [total-households occupancy-rate]} _]
   {:dwellings {}})
 
-;; Functions to handle outputs
+;; Functions to handle the model outputs
 (defworkflowoutput output-households-1-0-0
   "Returns the total households and the dwellings"
   {:witan/name :hh-model/output-households

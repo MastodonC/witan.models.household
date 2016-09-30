@@ -1,4 +1,5 @@
-(ns witan.models.schemas
+(ns ^{:doc "Defines the schemas for the inputs/outputs."}
+ witan.models.schemas
   (:require [schema.core :as s]))
 
 (def ResidentPopulation
