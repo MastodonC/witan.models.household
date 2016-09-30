@@ -54,7 +54,7 @@
 (defn read-inputs [file schema]
   {})
 
-(defn fix-input
+(defn add-input-params
   [input]
   (assoc-in input [:witan/params] {:src ""
                                    :key (get test-inputs (:witan/name input))
@@ -63,7 +63,7 @@
 ;; Test
 (deftest household-workspace-test
   (testing "The model is run on the workspace and returns the outputs expected"
-    (let [fixed-catalog (mapv #(if (= (:witan/type %) :input) (fix-input %) %)
+    (let [fixed-catalog (mapv #(if (= (:witan/type %) :input) (add-input-params %) %)
                               (:catalog m/household-model))
           workspace     {:workflow  (:workflow m/household-model)
                          :catalog   fixed-catalog
