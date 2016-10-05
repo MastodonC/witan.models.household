@@ -35,8 +35,8 @@
                            [:institutional-popn java.lang.Double]]))
 
 (def HouseholdRepresentativeRates
-  (make-ordered-ds-schema [[:gss-code s/Str] [:age s/Int] [:sex s/Str]
-                           [:year s/Int] [:relationship s/Str]
+  (make-ordered-ds-schema [[:gss-code s/Str] [:year s/Int] [:sex s/Str]
+                           [:relationship s/Str] [:age-group s/Keyword]
                            [:hh-repr-rates java.lang.Double]]))
 
 (def VacancyRates
@@ -53,21 +53,20 @@
                            [:household-popn java.lang.Double]]))
 
 (def HouseholdPopulationGrouped
-  (make-ordered-ds-schema [[:gss-code s/Str] [:age s/Int] [:sex s/Str]
-                           [:year s/Int] [:relationship s/Str]
+  (make-ordered-ds-schema [[:gss-code s/Str] [:year s/Int] [:sex s/Str]
+                           [:relationship s/Str] [:age-group s/Keyword]
                            [:household-popn java.lang.Double]]))
 
 (def Households
-  (make-ordered-ds-schema [[:gss-code s/Str] [:age s/Int] [:sex s/Str]
-                           [:year s/Int] [:relationship s/Str]
+  (make-ordered-ds-schema [[:gss-code s/Str] [:year s/Int] [:sex s/Str]
+                           [:relationship s/Str] [:age-group s/Keyword]
                            [:households java.lang.Double]]))
 
 (def TotalHouseholds
-  (make-ordered-ds-schema [[:gss-code s/Str] [:age s/Int] [:sex s/Str]
-                           [:year s/Int] [:relationship s/Str]
-                           [:total-households java.lang.Double]]))
+  (make-ordered-ds-schema [[:gss-code s/Str] [:year s/Int]
+                           [:households java.lang.Double]]))
 
-(def OccupancyRate
+(def OccupancyRates
   (make-ordered-ds-schema [[:gss-code s/Str] [:year s/Int]
                            [:occupancy-rates java.lang.Double]]))
 
