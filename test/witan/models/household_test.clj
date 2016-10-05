@@ -10,7 +10,7 @@
 (deftest validate-models
   (let [library (m/model-library)
         funs    (p/available-fns library)]
-    (testing "Are the model's valid?"
+    (testing "Are the models valid?"
       (doseq [{:keys [catalog metadata workflow]} (p/available-models library)]
         (let [{:keys [witan/name witan/version]} metadata
               model-name (str name " " version)]
@@ -45,20 +45,18 @@
 
 ;; Testing the model can be run by the workspace executor
 ;; Helpers
-(def test-inputs {:input-resident-popn :resident-popn
-                  :input-institutional-popn :institutional-popn
-                  :input-household-rates :household-rates
-                  :input-vacancy-rates :vacancy-rates
-                  :input-second-homes-rates :second-homes-rates})
+(def test-inputs {:input-resident-popn {}
+                  :input-institutional-popn {}
+                  :input-household-representative-rates {}
+                  :input-vacancy-rates {}
+                  :input-second-homes-rates {}})
 
-(defn read-inputs [file schema]
-  {})
+(defn read-inputs [input _ schema]
+  (get test-inputs (:witan/name input)))
 
 (defn add-input-params
   [input]
-  (assoc-in input [:witan/params] {:src ""
-                                   :key (get test-inputs (:witan/name input))
-                                   :fn read-inputs}))
+  (assoc-in input [:witan/params :fn] (partial read-inputs input)))
 
 ;; Test
 (deftest household-workspace-test

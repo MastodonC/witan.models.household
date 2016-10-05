@@ -33,23 +33,28 @@
    {:witan/name :input-resident-popn
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-resident-popn}
+    :witan/fn :hh-model/get-resident-popn
+    :witan/params {:src ""}}
    {:witan/name :input-institutional-popn
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-institutional-popn}
+    :witan/fn :hh-model/get-institutional-popn
+    :witan/params {:src ""}}
    {:witan/name :input-household-representative-rates
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-household-representative-rates}
+    :witan/fn :hh-model/get-household-representative-rates
+    :witan/params {:src ""}}
    {:witan/name :input-vacancy-rates
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-vacancy-rates}
+    :witan/fn :hh-model/get-vacancy-rates
+    :witan/params {:src ""}}
    {:witan/name :input-second-homes-rates
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-second-homes-rates}
+    :witan/fn :hh-model/get-second-homes-rates
+    :witan/params {:src ""}}
    ;; Calculation functions
    {:witan/name :calculate-household-popn
     :witan/version "1.0.0"
