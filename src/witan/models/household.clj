@@ -4,6 +4,8 @@
  witan.models.household
   (:require [witan.workspace-api :refer [defworkflowfn definput defworkflowoutput]]
             [witan.models.schemas :as s]
+            [clojure.core.matrix.dataset :as ds]
+            [witan.datasets :as wds]
             [schema.core :as sc]))
 
 ;; Functions to retrieve the five datasets needed
@@ -47,7 +49,11 @@
                         :institutional-popn s/InstitutionalPopulation}
    :witan/output-schema {:household-popn s/HouseholdPopulation}}
   [{:keys [resident-popn institutional-popn]} _]
-  {:household-popn {}})
+  (let [joined-popns (wds/join resident-popn institutional-popn
+                               [:gss-code :age :year :sex :relationship])
+        household-popn (wds/rollup joined-popns [identity - identity]
+                                   :resident-popn [:gss-code :age :year :sex :relationship])]
+    {:household-popn household-popn}))
 
 (defworkflowfn grp-household-popn-1-0-0
   "Takes in the household population. Returns the household popn

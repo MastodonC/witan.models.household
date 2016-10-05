@@ -4,7 +4,8 @@
             [witan.models.household :refer :all]
             [witan.models.model :as m]
             [witan.workspace-api.protocols :as p]
-            [witan.workspace-executor.core :as wex]))
+            [witan.workspace-executor.core :as wex]
+            [clojure.core.matrix.dataset :as ds]))
 
 ;; Testing the structure of the model
 (deftest validate-models
@@ -45,14 +46,26 @@
 
 ;; Testing the model can be run by the workspace executor
 ;; Helpers
-(def test-inputs {:input-resident-popn {}
-                  :input-institutional-popn {}
-                  :input-household-representative-rates {}
-                  :input-vacancy-rates {}
-                  :input-second-homes-rates {}})
+(def test-inputs
+  {:input-resident-popn [{:gss-code "001" :age 30 :sex "F" :year 2015
+                          :relationship "S" :resident-popn 4000.0}
+                         {:gss-code "001" :age 31 :sex "F" :year 2015
+                          :relationship "S" :resident-popn 3700.0}]
+   :input-institutional-popn [{:gss-code "001" :age 30 :sex "F" :year 2015
+                               :relationship "S" :institutional-popn 2500.0}
+                              {:gss-code "001" :age 31 :sex "F" :year 2015
+                               :relationship "S" :institutional-popn 1900.0}]
+   :input-household-representative-rates [{:gss-code "001" :age 30 :sex "F" :year 2015
+                                           :relationship "S" :hh-repr-rates 0.4}
+                                          {:gss-code "001" :age 31 :sex "F" :year 2015
+                                           :relationship "S" :hh-repr-rates 0.3}]
+   :input-vacancy-rates [{:gss-code "001" :year 2015 :vacancy-rates 0.5}]
+   :input-second-homes-rates [{:gss-code "001" :year 2015 :second-homes-rates 0.6}]})
 
 (defn read-inputs [input _ schema]
-  (get test-inputs (:witan/name input)))
+  (let [data (get test-inputs (:witan/name input))
+        data-set (ds/dataset data)]
+    data-set))
 
 (defn add-input-params
   [input]
@@ -61,13 +74,15 @@
 ;; Test
 (deftest household-workspace-test
   (testing "The model is run on the workspace and returns the outputs expected"
-    (let [fixed-catalog (mapv #(if (= (:witan/type %) :input) (add-input-params %) %)
+    (let [fixed-catalog (mapv #(if (= (:witan/type %) :input)
+                                 (add-input-params %) %)
                               (:catalog m/household-model))
           workspace     {:workflow  (:workflow m/household-model)
                          :catalog   fixed-catalog
                          :contracts (p/available-fns (m/model-library))}
           workspace'    (s/with-fn-validation (wex/build! workspace))
           result        (apply merge (wex/run!! workspace' {}))]
+      (println result)
       (is result)
       (is (:total-households result))
       (is (:dwellings result)))))
