@@ -126,7 +126,6 @@
           joined-ds (wds/join households-ds
                               (ds/rename-columns correct-output {:households :test-households})
                               [:gss-code :year :sex :relationship :age-group])]
-      (println joined-ds)
       (is (= (:shape households-ds) (:shape correct-output)))
       (is (= (:column-names households-ds) (:column-names correct-output)))
       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :households)
@@ -152,7 +151,7 @@
       (is (= (:column-names total-households) (:column-names correct-output)))
       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :households)
                                (wds/subset-ds joined-ds :rows % :cols :test-households)
-                               0.00001)
+                               0.0001)
                   (range (first (:shape joined-ds))))))))
 
 (deftest calc-occupancy-rates-test
