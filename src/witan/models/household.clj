@@ -50,15 +50,13 @@
                         :institutional-popn s/InstitutionalPopulation}
    :witan/output-schema {:household-popn s/HouseholdPopulation}}
   [{:keys [resident-popn institutional-popn]} _]
-  (let [joined-popns (wds/join resident-popn institutional-popn
-                               [:gss-code :age :year :sex :relationship])
-        intermed-ds (wds/add-derived-column joined-popns :household-popn
-                                            [:resident-popn :institutional-popn]
-                                            -)
-        household-popn (ds/select-columns intermed-ds
-                                          [:gss-code :age :sex :year
-                                           :relationship :household-popn])]
-    {:household-popn household-popn}))
+  {:household-popn (-> resident-popn
+                       (wds/join institutional-popn
+                                 [:gss-code :age :year :sex :relationship])
+                       (wds/add-derived-column :household-popn
+                                               [:resident-popn :institutional-popn] -)
+                       (ds/select-columns [:gss-code :age :sex :year
+                                           :relationship :household-popn]))})
 
 (defworkflowfn grp-household-popn-1-0-0
   "Takes in the household population. Returns the household popn
@@ -68,12 +66,12 @@
    :witan/input-schema {:household-popn s/HouseholdPopulation}
    :witan/output-schema {:household-popn-grp s/HouseholdPopulationGrouped}}
   [{:keys [household-popn]} _]
-  (let [popn-with-grp-col (wds/add-derived-column household-popn :age-group
-                                                  [:age]
-                                                  (fn [a] (u/get-age-grp a)))
-        household-popn-gouped (wds/rollup popn-with-grp-col :sum :household-popn
-                                          [:gss-code :year :sex :relationship :age-group])]
-    {:household-popn-grp household-popn-gouped}))
+  {:household-popn-grp (-> household-popn
+                           (wds/add-derived-column :age-group
+                                                   [:age]
+                                                   u/get-age-grp)
+                           (wds/rollup :sum :household-popn
+                                       [:gss-code :year :sex :relationship :age-group]))})
 
 (defworkflowfn calc-households-1-0-0
   "Takes in household rates and grouped household population.
@@ -84,15 +82,13 @@
                         :household-popn-grp s/HouseholdPopulationGrouped}
    :witan/output-schema {:households s/Households}}
   [{:keys [household-representative-rates household-popn-grp]} _]
-  (let [joined-ds (wds/join household-representative-rates household-popn-grp
-                            [:gss-code :year :sex :relationship :age-group])
-        households-calc (wds/add-derived-column joined-ds :households
-                                                [:household-popn :hh-repr-rates]
-                                                *)
-        households (ds/select-columns households-calc
-                                      [:gss-code :year :sex :relationship
-                                       :age-group :households])]
-    {:households households}))
+  {:households (-> household-representative-rates
+                   (wds/join household-popn-grp
+                             [:gss-code :year :sex :relationship :age-group])
+                   (wds/add-derived-column :households
+                                           [:household-popn :hh-repr-rates] *)
+                   (ds/select-columns [:gss-code :year :sex :relationship
+                                       :age-group :households]))})
 
 (defworkflowfn calc-total-households-1-0-0
   "Takes in the households.
@@ -113,11 +109,11 @@
                         :second-homes-rates s/SecondHomesRates}
    :witan/output-schema {:occupancy-rates s/OccupancyRates}}
   [{:keys [vacancy-rates second-homes-rates]} _]
-  (let [joined-ds (wds/join vacancy-rates second-homes-rates [:gss-code :year])
-        occupancy-calc (wds/add-derived-column joined-ds :occupancy-rates
-                                               [:vacancy-rates :second-homes-rates] +)
-        occupancy-ds (ds/select-columns occupancy-calc [:gss-code :year :occupancy-rates])]
-    {:occupancy-rates occupancy-ds}))
+  {:occupancy-rates (-> vacancy-rates
+                        (wds/join second-homes-rates [:gss-code :year])
+                        (wds/add-derived-column :occupancy-rates
+                                                [:vacancy-rates :second-homes-rates] +)
+                        (ds/select-columns [:gss-code :year :occupancy-rates]))})
 
 (defworkflowfn calc-dwellings-1-0-0
   "Takes in the total households and the occupancy rate.
@@ -128,12 +124,12 @@
                         :occupancy-rates s/OccupancyRates}
    :witan/output-schema {:dwellings s/Dwellings}}
   [{:keys [total-households occupancy-rates]} _]
-  (let [joined-ds (wds/join total-households occupancy-rates [:gss-code :year])
-        dwellings-calc (wds/add-derived-column joined-ds :dwellings
-                                               [:households :occupancy-rates]
-                                               (fn [hh or] (* hh (- 1 or))))
-        dwellings-ds (ds/select-columns dwellings-calc [:gss-code :year :dwellings])]
-    {:dwellings dwellings-ds}))
+  {:dwellings (-> total-households
+                  (wds/join occupancy-rates [:gss-code :year])
+                  (wds/add-derived-column :dwellings
+                                          [:households :occupancy-rates]
+                                          (fn [hh occ] (* hh (- 1 occ))))
+                  (ds/select-columns [:gss-code :year :dwellings]))})
 
 ;; Functions to handle the model outputs
 (defworkflowoutput output-households-1-0-0
