@@ -1,5 +1,5 @@
 (ns ^{:doc "Defines helper functions for the household model."}
-    witan.models.utils)
+ witan.models.utils)
 
 (def age-grps
   {(range 0 5) :0-4 (range 5 10) :5-9

@@ -89,7 +89,7 @@
           institut-popn (read-inputs
                          {:witan/name :input-institutional-popn} [] [])
           result (calc-household-popn-1-0-0 {:resident-popn resident-popn
-                                              :institutional-popn institut-popn})]
+                                             :institutional-popn institut-popn})]
       (is (ds/dataset? (:household-popn result)))
       (is (= #{:gss-code :age :sex :year :relationship :household-popn}
              (set (:column-names (:household-popn result))))))))
@@ -104,7 +104,7 @@
                                           {:witan/name
                                            :input-institutional-popn} [] [])}))
           hh-popn-5yrs-bands (:household-popn-grp
-                             (grp-household-popn-1-0-0 {:household-popn hh-popn}))
+                              (grp-household-popn-1-0-0 {:household-popn hh-popn}))
           correct-output (ds/dataset (:banded-projections
                                       (:test-outputs (edn/read-string
                                                       (slurp (io/resource "testing_data.edn"))))))]
@@ -131,7 +131,7 @@
       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :households)
                                (wds/subset-ds joined-ds :rows % :cols :test-households)
                                0.00001)
-           (range (first (:shape joined-ds))))))))
+                  (range (first (:shape joined-ds))))))))
 
 (deftest calc-total-households-test
   (testing "The total numbers of households are calculated per year and gss code"
@@ -159,7 +159,7 @@
     (let [vacancy-rates (ds/dataset
                          (:input-vacancy-rates
                           (:test-inputs (edn/read-string
-                                          (slurp (io/resource "testing_data.edn"))))))
+                                         (slurp (io/resource "testing_data.edn"))))))
           second-homes-rates (ds/dataset
                               (:input-second-homes-rates
                                (:test-inputs (edn/read-string

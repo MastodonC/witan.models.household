@@ -2,7 +2,6 @@
  witan.models.schemas
   (:require [schema.core :as s]))
 
-
 ;; Generate schemas
 (defn make-ordered-ds-schema [col-vec]
   {:column-names (mapv #(s/one (s/eq (first %)) (str (first %))) col-vec)

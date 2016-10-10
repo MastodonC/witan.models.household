@@ -115,7 +115,7 @@
   [{:keys [vacancy-rates second-homes-rates]} _]
   (let [joined-ds (wds/join vacancy-rates second-homes-rates [:gss-code :year])
         occupancy-calc (wds/add-derived-column joined-ds :occupancy-rates
-                                           [:vacancy-rates :second-homes-rates] +)
+                                               [:vacancy-rates :second-homes-rates] +)
         occupancy-ds (ds/select-columns occupancy-calc [:gss-code :year :occupancy-rates])]
     {:occupancy-rates occupancy-ds}))
 
