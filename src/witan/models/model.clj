@@ -20,10 +20,10 @@
    [:calculate-households :calculate-total-households]
 
    ;; Household occupancy
-   [:input-vacancy-rates :calculate-occupancy-rate]
-   [:input-second-homes-rates :calculate-occupancy-rate]
+   [:input-vacancy-rates :calculate-occupancy-rates]
+   [:input-second-homes-rates :calculate-occupancy-rates]
    [:calculate-total-households :calculate-dwellings]
-   [:calculate-occupancy-rate :calculate-dwellings]
+   [:calculate-occupancy-rates :calculate-dwellings]
    [:calculate-total-households :output-households]
    [:calculate-dwellings :output-dwellings]])
 
@@ -72,10 +72,10 @@
     :witan/version "1.0.0"
     :witan/type :function
     :witan/fn :hh-model/calc-total-households}
-   {:witan/name :calculate-occupancy-rate
+   {:witan/name :calculate-occupancy-rates
     :witan/version "1.0.0"
     :witan/type :function
-    :witan/fn :hh-model/calc-occupancy-rate}
+    :witan/fn :hh-model/calc-occupancy-rates}
    {:witan/name :calculate-dwellings
     :witan/version "1.0.0"
     :witan/type :function
@@ -114,7 +114,7 @@
        hh/grp-household-popn-1-0-0
        hh/calc-households-1-0-0
        hh/calc-total-households-1-0-0
-       hh/calc-occupancy-rate-1-0-0
+       hh/calc-occupancy-rates-1-0-0
        hh/calc-dwellings-1-0-0
        hh/output-households-1-0-0
        hh/output-dwellings-1-0-0))
