@@ -10,6 +10,12 @@
             [witan.models.utils :as u]))
 
 ;; Functions to retrieve the five datasets needed
+(definput get-popn-proj-1-0-0
+  {:witan/name :hh-model/get-popn-proj
+   :witan/version "1.0.0"
+   :witan/key :population
+   :witan/schema s/PopulationProjections})
+
 (definput get-resident-popn-1-0-0
   {:witan/name :hh-model/get-resident-popn
    :witan/version "1.0.0"
@@ -41,6 +47,52 @@
    :witan/schema s/SecondHomesRates})
 
 ;; Functions defining calculations
+(defworkflowfn grp-popn-proj-1-0-0
+  "Takes in the CCM population projections.
+   Returns the same population grouped by five years bands like DCLG data."
+  {:witan/name :hh-model/grp-popn-proj
+   :witan/version "1.0.0"
+   :witan/input-schema {:population s/PopulationProjections}
+   :witan/output-schema {:banded-projections s/PopulationProjectionsGrouped}}
+  [{:keys [population]} _]
+  {:banded-projections (-> population
+                           (wds/add-derived-column :age-group
+                                                   [:age]
+                                                   u/get-age-grp)
+                           (wds/rollup :sum :household-popn
+                                       [:gss-code :year :sex :relationship :age-group]))})
+
+(defworkflowfn sum-resident-popn-1-0-0
+  "Takes in the resident populations.
+   Returns the same population summed by household type."
+  {:witan/name :hh-model/sum-resident-popn
+   :witan/version "1.0.0"
+   :witan/input-schema {:resident-popn s/ResidentPopulation}
+   :witan/output-schema {:resident-popn-summed s/ResidentPopulationSummed}}
+  [{:keys [resident-popn]} _]
+  {:resident-popn-summed (-> resident-popn
+                             (wds/rollup :sum :resident-popn-summed
+                                         [:gss-code :year :sex :relationship :age-group]))})
+
+(defworkflowfn adjust-resident-proj-1-0-0
+  "Takes in the resident population and banded population
+   projections. Returns the resident population projections."
+  {:witan/name :hh-model/adjust-resident-proj
+   :witan/version "1.0.0"
+   :witan/input-schema {:resident-popn-summed s/ResidentPopulationSummed
+                        :banded-projections s/PopulationProjectionsGrouped}
+   :witan/output-schema {:adjusted-resident-popn-proj s/AdjustedResidentPopulation}}
+  [{:keys [resident-popn-summed banded-projections]} _]
+  {:adjusted-resident-popn-proj (-> resident-popn-summed
+                                    (wds/join banded-projections
+                                              [:gss-code :age :year :sex :relationship])
+                                    (wds/add-derived-column :adjusted-resident-popn-proj
+                                                            [:resident-popn-summed :resident-popn
+                                                             :population]
+                                                            +)
+                                    (ds/select-columns [:gss-code :age :sex :year
+                                                        :relationship :household-popn]))})
+
 (defworkflowfn calc-household-popn-1-0-0
   "Takes in the resident and institutional populations.
    Returns the household population."
@@ -57,21 +109,6 @@
                                                [:resident-popn :institutional-popn] -)
                        (ds/select-columns [:gss-code :age :sex :year
                                            :relationship :household-popn]))})
-
-(defworkflowfn grp-household-popn-1-0-0
-  "Takes in the household population. Returns the household popn
-   grouped by five years bands like DCLG data."
-  {:witan/name :hh-model/grp-household-popn
-   :witan/version "1.0.0"
-   :witan/input-schema {:household-popn s/HouseholdPopulation}
-   :witan/output-schema {:household-popn-grp s/HouseholdPopulationGrouped}}
-  [{:keys [household-popn]} _]
-  {:household-popn-grp (-> household-popn
-                           (wds/add-derived-column :age-group
-                                                   [:age]
-                                                   u/get-age-grp)
-                           (wds/rollup :sum :household-popn
-                                       [:gss-code :year :sex :relationship :age-group]))})
 
 (defworkflowfn calc-households-1-0-0
   "Takes in household rates and grouped household population.

@@ -23,10 +23,30 @@
         (:column-names col-schema)))
 
 ;;Define schemas
+(def PopulationProjections
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age s/Int] [:sex s/Str]
+                           [:year s/Int] [:relationship s/Str]
+                           [:population java.lang.Double]]))
+
+(def PopulationProjectionsGrouped
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age s/Int] [:sex s/Str]
+                           [:year s/Int] [:relationship s/Str]
+                           [:population java.lang.Double]]))
+
+(def AdjustedResidentPopulation
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age s/Int] [:sex s/Str]
+                           [:year s/Int] [:relationship s/Str]
+                           [:adjusted-resident-popn-proj java.lang.Double]]))
+
 (def ResidentPopulation
   (make-ordered-ds-schema [[:gss-code s/Str] [:age s/Int] [:sex s/Str]
                            [:year s/Int] [:relationship s/Str]
                            [:resident-popn java.lang.Double]]))
+
+(def ResidentPopulationSummed
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age s/Int] [:sex s/Str]
+                           [:year s/Int] [:relationship s/Str]
+                           [:resident-popn-summed java.lang.Double]]))
 
 (def InstitutionalPopulation
   (make-ordered-ds-schema [[:gss-code s/Str] [:age s/Int] [:sex s/Str]
