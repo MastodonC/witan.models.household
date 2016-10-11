@@ -13,6 +13,7 @@
    [:input-popn-projections :group-by-5-yrs]
    [:input-resident-popn-proj :sum-by-household]
    [:group-by-5-yrs :adjust-resident-popn-proj]
+   [:input-resident-popn-proj :adjust-resident-popn-proj]
    [:sum-by-household :adjust-resident-popn-proj]
    [:adjust-resident-popn-proj :calculate-household-popn]
    [:input-institutional-popn-proj :calculate-household-popn]

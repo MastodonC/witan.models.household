@@ -88,105 +88,139 @@
 (defn- fp-equals? [x y ε] (< (Math/abs (- x y)) ε))
 
 ;; Tests
-;; (deftest calc-household-popn-test
-;;   (testing "The household population gets created!"
-;;     (let [resident-popn (read-inputs
-;;                          {:witan/name :input-resident-popn} [] [])
-;;           institut-popn (read-inputs
-;;                          {:witan/name :input-institutional-popn} [] [])
-;;           result (calc-household-popn-1-0-0 {:resident-popn resident-popn
-;;                                              :institutional-popn institut-popn})]
-;;       (is (ds/dataset? (:household-popn result)))
-;;       (is (= #{:gss-code :age :sex :year :relationship :household-popn}
-;;              (set (:column-names (:household-popn result))))))))
+(deftest grp-popn-proj-test
+  (testing "The output of the CCM is grouped by 5 years bands"
+    (let [popn-proj (read-inputs
+                     {:witan/name :input-popn-proj} [] [])
+          grouped-popn (:banded-projections (grp-popn-proj-1-0-0 {:population popn-proj}))
+          correct-output (ds/dataset (:banded-projections test-outputs))]
+      (is (= grouped-popn correct-output)))))
 
-;; (deftest grp-household-popn-test
-;;   (testing "The household population is grouped by five years bands"
-;;     (let [hh-popn (:household-popn
-;;                    (calc-household-popn-1-0-0
-;;                     {:resident-popn (read-inputs
-;;                                      {:witan/name :input-resident-popn} [] [])
-;;                      :institutional-popn (read-inputs
-;;                                           {:witan/name
-;;                                            :input-institutional-popn} [] [])}))
-;;           hh-popn-5yrs-bands (:household-popn-grp
-;;                               (grp-household-popn-1-0-0 {:household-popn hh-popn}))
-;;           correct-output (ds/dataset (:banded-projections test-outputs))]
-;;       (is (= hh-popn-5yrs-bands correct-output)))))
+(deftest sum-resident-popn-test
+  (testing "The resident projections are summed by household type"
+    (let [resident-popn (read-inputs
+                         {:witan/name :input-resident-popn} [] [])
+          summed-res-popn (:resident-popn-summed (sum-resident-popn-1-0-0
+                                                  {:resident-popn resident-popn}))
+          correct-output (ds/dataset (:resident-popn-summed test-outputs))]
+      (is (= summed-res-popn correct-output)))))
 
-;; (deftest calc-households-test
-;;   (testing "The household population is turned into households"
-;;     (let [hh-popn-grp (ds/dataset (:banded-projections test-outputs))
-;;           hh-repr-rates (read-inputs
-;;                          {:witan/name :input-household-representative-rates} [] [])
-;;           households-ds (:households
-;;                          (calc-households-1-0-0 {:household-popn-grp hh-popn-grp
-;;                                                  :household-representative-rates hh-repr-rates}))
-;;           correct-output (ds/dataset (:households test-outputs))
-;;           joined-ds (wds/join households-ds
-;;                               (ds/rename-columns correct-output {:households :test-households})
-;;                               [:gss-code :year :sex :relationship :age-group])]
-;;       (is (= (:shape households-ds) (:shape correct-output)))
-;;       (is (= (:column-names households-ds) (:column-names correct-output)))
-;;       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :households)
-;;                                (wds/subset-ds joined-ds :rows % :cols :test-households)
-;;                                0.00001)
-;;                   (range (first (:shape joined-ds))))))))
+(deftest adjust-resident-proj-test
+  (testing "The resident proj from dclg are adjusted using CCM outputs grouped"
+    (let [resident-popn (read-inputs
+                         {:witan/name :input-resident-popn} [] [])
+          banded-projections (ds/dataset (:banded-projections test-outputs))
+          resident-popn-summed (ds/dataset (:resident-popn-summed test-outputs))
+          adjusted-res-popn (:adjusted-resident-popn
+                             (adjust-resident-proj-1-0-0 {:resident-popn resident-popn
+                                                          :resident-popn-summed resident-popn-summed
+                                                          :banded-projections banded-projections}))
+          correct-output (ds/dataset (:adjusted-resident-popn test-outputs))
+          joined-ds (wds/join adjusted-res-popn
+                              (ds/rename-columns correct-output {:adjusted-resident-popn
+                                                                 :adjusted-resident-popn-test})
+                              [:gss-code :year :sex :relationship :age-group])]
+      (is (= (:shape adjusted-res-popn) (:shape correct-output)))
+      (is (= (:column-names adjusted-res-popn) (:column-names correct-output)))
+      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :adjusted-resident-popn)
+                               (wds/subset-ds joined-ds :rows % :cols :adjusted-resident-popn-test)
+                               0.00001)
+                  (range (first (:shape joined-ds))))))))
 
-;; (deftest calc-total-households-test
-;;   (testing "The total numbers of households are calculated per year and gss code"
-;;     (let [households-ds (ds/dataset (:households test-outputs))
-;;           total-households (:total-households (calc-total-households-1-0-0
-;;                                                {:households households-ds}))
-;;           correct-output (ds/dataset
-;;                           (:total-households test-outputs))
-;;           joined-ds (wds/join total-households
-;;                               (ds/rename-columns correct-output {:households :test-households})
-;;                               [:gss-code :year])]
-;;       (is (= (:shape total-households) (:shape correct-output)))
-;;       (is (= (:column-names total-households) (:column-names correct-output)))
-;;       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :households)
-;;                                (wds/subset-ds joined-ds :rows % :cols :test-households)
-;;                                0.0001)
-;;                   (range (first (:shape joined-ds))))))))
+(deftest calc-household-popn-test
+  (testing "The household population gets created!"
+    (let [resident-popn (ds/dataset (:adjusted-resident-popn test-outputs))
+          institut-popn (read-inputs
+                         {:witan/name :input-institutional-popn} [] [])
+          household-popn (:household-popn
+                          (calc-household-popn-1-0-0 {:adjusted-resident-popn resident-popn
+                                                      :institutional-popn institut-popn}))
+          correct-output (ds/dataset (:household-popn test-outputs))
+          joined-ds (wds/join household-popn
+                              (ds/rename-columns correct-output {:household-popn
+                                                                 :household-popn-test})
+                              [:gss-code :year :sex :relationship :age-group])]
+      (is (= (:shape household-popn) (:shape correct-output)))
+      (is (= (:column-names household-popn) (:column-names correct-output)))
+      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :household-popn)
+                               (wds/subset-ds joined-ds :rows % :cols :household-popn-test)
+                               0.00001)
+                  (range (first (:shape joined-ds))))))))
 
-;; (deftest calc-occupancy-rates-test
-;;   (testing "The occupancy rates are calculated correctly"
-;;     (let [vacancy-rates (ds/dataset
-;;                          (:input-vacancy-rates test-inputs))
-;;           second-homes-rates (ds/dataset
-;;                               (:input-second-homes-rates test-inputs))
-;;           occupancy-rates (:occupancy-rates
-;;                            (calc-occupancy-rates-1-0-0 {:vacancy-rates vacancy-rates
-;;                                                         :second-homes-rates second-homes-rates}))
-;;           correct-output (ds/dataset
-;;                           (:occupancy-rates test-outputs))
-;;           joined-ds (wds/join occupancy-rates
-;;                               (ds/rename-columns correct-output {:occupancy-rates :test-rates})
-;;                               [:gss-code :year])]
-;;       (is (= (:shape occupancy-rates) (:shape correct-output)))
-;;       (is (= (:column-names occupancy-rates) (:column-names correct-output)))
-;;       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :occupancy-rates)
-;;                                (wds/subset-ds joined-ds :rows % :cols :test-rates)
-;;                                0.00001)
-;;                   (range (first (:shape joined-ds))))))))
 
-;; (deftest calc-dwellings-test
-;;   (testing "The number of dwellings is calculated correctly"
-;;     (let [total-households (ds/dataset
-;;                             (:total-households test-outputs))
-;;           occupancy-rates (ds/dataset
-;;                            (:occupancy-rates test-outputs))
-;;           dwellings-ds (:dwellings (calc-dwellings-1-0-0 {:total-households total-households
-;;                                                           :occupancy-rates occupancy-rates}))
-;;           correct-output (ds/dataset
-;;                           (:dwellings test-outputs))
-;;           joined-ds (wds/join dwellings-ds
-;;                               (ds/rename-columns correct-output {:dwellings :test-dwellings})
-;;                               [:gss-code :year])]
-;;       (is (= (:shape dwellings-ds) (:shape correct-output)))
-;;       (is (= (:column-names dwellings-ds) (:column-names correct-output)))
-;;       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :dwellings)
-;;                                (wds/subset-ds joined-ds :rows % :cols :test-dwellings)
-;;                                0.0001)
-;;                   (range (first (:shape joined-ds))))))))
+(deftest calc-households-test
+  (testing "The household population is turned into households"
+    (let [hh-popn (ds/dataset (:household-popn test-outputs))
+          hh-repr-rates (read-inputs
+                         {:witan/name :input-household-representative-rates} [] [])
+          households-ds (:households
+                         (calc-households-1-0-0 {:household-popn hh-popn
+                                                 :household-representative-rates hh-repr-rates}))
+          correct-output (ds/dataset (:households test-outputs))
+          joined-ds (wds/join households-ds
+                              (ds/rename-columns correct-output {:households :test-households})
+                              [:gss-code :year :sex :relationship :age-group])]
+      (is (= (:shape households-ds) (:shape correct-output)))
+      (is (= (:column-names households-ds) (:column-names correct-output)))
+      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :households)
+                               (wds/subset-ds joined-ds :rows % :cols :test-households)
+                               0.00001)
+                  (range (first (:shape joined-ds))))))))
+
+(deftest calc-total-households-test
+  (testing "The total numbers of households are calculated per year and gss code"
+    (let [households-ds (ds/dataset (:households test-outputs))
+          total-households (:total-households (calc-total-households-1-0-0
+                                               {:households households-ds}))
+          correct-output (ds/dataset
+                          (:total-households test-outputs))
+          joined-ds (wds/join total-households
+                              (ds/rename-columns correct-output {:households :test-households})
+                              [:gss-code :year])]
+      (is (= (:shape total-households) (:shape correct-output)))
+      (is (= (:column-names total-households) (:column-names correct-output)))
+      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :households)
+                               (wds/subset-ds joined-ds :rows % :cols :test-households)
+                               0.0001)
+                  (range (first (:shape joined-ds))))))))
+
+(deftest calc-occupancy-rates-test
+  (testing "The occupancy rates are calculated correctly"
+    (let [vacancy-rates (ds/dataset
+                         (:input-vacancy-rates test-inputs))
+          second-homes-rates (ds/dataset
+                              (:input-second-homes-rates test-inputs))
+          occupancy-rates (:occupancy-rates
+                           (calc-occupancy-rates-1-0-0 {:vacancy-rates vacancy-rates
+                                                        :second-homes-rates second-homes-rates}))
+          correct-output (ds/dataset
+                          (:occupancy-rates test-outputs))
+          joined-ds (wds/join occupancy-rates
+                              (ds/rename-columns correct-output {:occupancy-rates :test-rates})
+                              [:gss-code :year])]
+      (is (= (:shape occupancy-rates) (:shape correct-output)))
+      (is (= (:column-names occupancy-rates) (:column-names correct-output)))
+      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :occupancy-rates)
+                               (wds/subset-ds joined-ds :rows % :cols :test-rates)
+                               0.00001)
+                  (range (first (:shape joined-ds))))))))
+
+(deftest calc-dwellings-test
+  (testing "The number of dwellings is calculated correctly"
+    (let [total-households (ds/dataset
+                            (:total-households test-outputs))
+          occupancy-rates (ds/dataset
+                           (:occupancy-rates test-outputs))
+          dwellings-ds (:dwellings (calc-dwellings-1-0-0 {:total-households total-households
+                                                          :occupancy-rates occupancy-rates}))
+          correct-output (ds/dataset
+                          (:dwellings test-outputs))
+          joined-ds (wds/join dwellings-ds
+                              (ds/rename-columns correct-output {:dwellings :test-dwellings})
+                              [:gss-code :year])]
+      (is (= (:shape dwellings-ds) (:shape correct-output)))
+      (is (= (:column-names dwellings-ds) (:column-names correct-output)))
+      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :dwellings)
+                               (wds/subset-ds joined-ds :rows % :cols :test-dwellings)
+                               0.0001)
+                  (range (first (:shape joined-ds))))))))
