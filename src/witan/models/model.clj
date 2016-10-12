@@ -19,6 +19,7 @@
    [:input-institutional-popn-proj :calculate-household-popn]
 
    ;; Households
+   [:calculate-household-popn :calculate-households]
    [:input-household-representative-rates :calculate-households]
    [:calculate-households :calculate-total-households]
 

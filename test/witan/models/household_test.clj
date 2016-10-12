@@ -91,7 +91,7 @@
 (deftest grp-popn-proj-test
   (testing "The output of the CCM is grouped by 5 years bands"
     (let [popn-proj (read-inputs
-                     {:witan/name :input-popn-proj} [] [])
+                     {:witan/name :input-popn-projections} [] [])
           grouped-popn (:banded-projections (grp-popn-proj-1-0-0 {:population popn-proj}))
           correct-output (ds/dataset (:banded-projections test-outputs))]
       (is (= grouped-popn correct-output)))))
@@ -99,7 +99,7 @@
 (deftest sum-resident-popn-test
   (testing "The resident projections are summed by household type"
     (let [resident-popn (read-inputs
-                         {:witan/name :input-resident-popn} [] [])
+                         {:witan/name :input-resident-popn-proj} [] [])
           summed-res-popn (:resident-popn-summed (sum-resident-popn-1-0-0
                                                   {:resident-popn resident-popn}))
           correct-output (ds/dataset (:resident-popn-summed test-outputs))]
@@ -108,7 +108,7 @@
 (deftest adjust-resident-proj-test
   (testing "The resident proj from dclg are adjusted using CCM outputs grouped"
     (let [resident-popn (read-inputs
-                         {:witan/name :input-resident-popn} [] [])
+                         {:witan/name :input-resident-popn-proj} [] [])
           banded-projections (ds/dataset (:banded-projections test-outputs))
           resident-popn-summed (ds/dataset (:resident-popn-summed test-outputs))
           adjusted-res-popn (:adjusted-resident-popn
@@ -131,7 +131,7 @@
   (testing "The household population gets created!"
     (let [resident-popn (ds/dataset (:adjusted-resident-popn test-outputs))
           institut-popn (read-inputs
-                         {:witan/name :input-institutional-popn} [] [])
+                         {:witan/name :input-institutional-popn-proj} [] [])
           household-popn (:household-popn
                           (calc-household-popn-1-0-0 {:adjusted-resident-popn resident-popn
                                                       :institutional-popn institut-popn}))
