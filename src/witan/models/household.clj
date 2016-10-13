@@ -71,7 +71,7 @@
   [{:keys [resident-popn]} _]
   {:resident-popn-summed (-> resident-popn
                              (wds/rollup :sum :resident-popn
-                                         [:gss-code :year :age-group])
+                                         [:gss-code :year :age-group :sex])
                              (ds/rename-columns {:resident-popn :resident-popn-summed}))})
 
 (defworkflowfn adjust-resident-proj-1-0-0
@@ -87,7 +87,7 @@
   (let [joined-resident-popn (wds/join banded-projections resident-popn
                                        [:gss-code :year :sex :age-group])
         joined-summed-popn (wds/join resident-popn-summed joined-resident-popn
-                                     [:gss-code :year :age-group])]
+                                     [:gss-code :year :sex :age-group])]
     {:adjusted-resident-popn (-> joined-summed-popn
                                       (wds/add-derived-column :adjusted-resident-popn
                                                               [:resident-popn-summed :resident-popn

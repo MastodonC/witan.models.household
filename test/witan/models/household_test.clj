@@ -124,7 +124,7 @@
       (is (= (:column-names adjusted-res-popn) (:column-names correct-output)))
       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :adjusted-resident-popn)
                                (wds/subset-ds joined-ds :rows % :cols :adjusted-resident-popn-test)
-                               0.00001)
+                               0.000001)
                   (range (first (:shape joined-ds))))))))
 
 (deftest calc-household-popn-test
@@ -144,7 +144,7 @@
       (is (= (:column-names household-popn) (:column-names correct-output)))
       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :household-popn)
                                (wds/subset-ds joined-ds :rows % :cols :household-popn-test)
-                               0.00001)
+                               0.000001)
                   (range (first (:shape joined-ds))))))))
 
 

@@ -42,7 +42,7 @@
 
 (def ResidentPopulationSummed
   (make-ordered-ds-schema [[:gss-code s/Str] [:year s/Int] [:age-group s/Keyword]
-                           [:resident-popn-summed java.lang.Double]]))
+                           [:sex (s/enum "F" "M")] [:resident-popn-summed java.lang.Double]]))
 
 (def InstitutionalPopulation
   (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword] [:sex (s/enum "F" "M")]
