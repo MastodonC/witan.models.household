@@ -93,7 +93,8 @@
                                                               [:resident-popn-summed :resident-popn
                                                                :population]
                                                               (fn [sum res popn]
-                                                                (* popn (/ res sum))))
+                                                                (* popn (wds/safe-divide
+                                                                         [res sum]))))
                                       (ds/select-columns [:gss-code :age-group :sex
                                                           :year :relationship
                                                           :adjusted-resident-popn]))}))
