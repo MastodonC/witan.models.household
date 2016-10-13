@@ -10,13 +10,17 @@
 (def hh-model-workflow
   "Defines each step of the household model"
   [;; Household population
-   [:input-resident-popn :calculate-household-popn]
-   [:input-institutional-popn :calculate-household-popn]
-   [:calculate-household-popn :group-household-popn]
+   [:input-popn-projections :group-by-5-yrs]
+   [:input-resident-popn-proj :sum-by-household]
+   [:group-by-5-yrs :adjust-resident-popn-proj]
+   [:input-resident-popn-proj :adjust-resident-popn-proj]
+   [:sum-by-household :adjust-resident-popn-proj]
+   [:adjust-resident-popn-proj :calculate-household-popn]
+   [:input-institutional-popn-proj :calculate-household-popn]
 
    ;; Households
+   [:calculate-household-popn :calculate-households]
    [:input-household-representative-rates :calculate-households]
-   [:group-household-popn :calculate-households]
    [:calculate-households :calculate-total-households]
 
    ;; Household occupancy
@@ -30,12 +34,17 @@
 (def hh-model-catalog
   "Provides metadata for each step of the household model"
   [;; Input functions
-   {:witan/name :input-resident-popn
+   {:witan/name :input-popn-projections
+    :witan/version "1.0.0"
+    :witan/type :input
+    :witan/fn :hh-model/get-popn-proj
+    :witan/params {:src ""}}
+   {:witan/name :input-resident-popn-proj
     :witan/version "1.0.0"
     :witan/type :input
     :witan/fn :hh-model/get-resident-popn
     :witan/params {:src ""}}
-   {:witan/name :input-institutional-popn
+   {:witan/name :input-institutional-popn-proj
     :witan/version "1.0.0"
     :witan/type :input
     :witan/fn :hh-model/get-institutional-popn
@@ -56,14 +65,22 @@
     :witan/fn :hh-model/get-second-homes-rates
     :witan/params {:src ""}}
    ;; Calculation functions
+   {:witan/name :group-by-5-yrs
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/grp-popn-proj}
+   {:witan/name :sum-by-household
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/sum-resident-popn}
+   {:witan/name :adjust-resident-popn-proj
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/adjust-resident-proj}
    {:witan/name :calculate-household-popn
     :witan/version "1.0.0"
     :witan/type :function
     :witan/fn :hh-model/calc-household-popn}
-   {:witan/name :group-household-popn
-    :witan/version "1.0.0"
-    :witan/type :function
-    :witan/fn :hh-model/grp-household-popn}
    {:witan/name :calculate-households
     :witan/version "1.0.0"
     :witan/type :function
@@ -105,13 +122,16 @@
   (reify p/IModelLibrary
     (available-fns [_]
       (map-fn-meta
+       hh/get-popn-proj-1-0-0
        hh/get-resident-popn-1-0-0
        hh/get-institutional-popn-1-0-0
        hh/get-household-representative-rates-1-0-0
        hh/get-vacancy-rates-1-0-0
        hh/get-second-homes-rates-1-0-0
+       hh/grp-popn-proj-1-0-0
+       hh/sum-resident-popn-1-0-0
+       hh/adjust-resident-proj-1-0-0
        hh/calc-household-popn-1-0-0
-       hh/grp-household-popn-1-0-0
        hh/calc-households-1-0-0
        hh/calc-total-households-1-0-0
        hh/calc-occupancy-rates-1-0-0

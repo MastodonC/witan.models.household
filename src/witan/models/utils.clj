@@ -2,6 +2,8 @@
  witan.models.utils)
 
 (def age-grps
+  "Same age groups as the DCLG data
+   (5 years age bands with an 85+ band)"
   {(range 0 5) :0-4 (range 5 10) :5-9
    (range 10 15) :10-14 (range 15 20) :15-19
    (range 20 25) :20-24 (range 25 30) :25-29

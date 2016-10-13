@@ -88,39 +88,73 @@
 (defn- fp-equals? [x y ε] (< (Math/abs (- x y)) ε))
 
 ;; Tests
+(deftest grp-popn-proj-test
+  (testing "The output of the CCM is grouped by 5 years bands"
+    (let [popn-proj (read-inputs
+                     {:witan/name :input-popn-projections} [] [])
+          grouped-popn (:banded-projections (grp-popn-proj-1-0-0 {:population popn-proj}))
+          correct-output (ds/dataset (:banded-projections test-outputs))]
+      (is (= grouped-popn correct-output)))))
+
+(deftest sum-resident-popn-test
+  (testing "The resident projections are summed by household type"
+    (let [resident-popn (read-inputs
+                         {:witan/name :input-resident-popn-proj} [] [])
+          summed-res-popn (:resident-popn-summed (sum-resident-popn-1-0-0
+                                                  {:resident-popn resident-popn}))
+          correct-output (ds/dataset (:resident-popn-summed test-outputs))]
+      (is (= summed-res-popn correct-output)))))
+
+(deftest adjust-resident-proj-test
+  (testing "The resident proj from dclg are adjusted using CCM outputs grouped"
+    (let [resident-popn (read-inputs
+                         {:witan/name :input-resident-popn-proj} [] [])
+          banded-projections (ds/dataset (:banded-projections test-outputs))
+          resident-popn-summed (ds/dataset (:resident-popn-summed test-outputs))
+          adjusted-res-popn (:adjusted-resident-popn
+                             (adjust-resident-proj-1-0-0 {:resident-popn resident-popn
+                                                          :resident-popn-summed resident-popn-summed
+                                                          :banded-projections banded-projections}))
+          correct-output (ds/dataset (:adjusted-resident-popn test-outputs))
+          joined-ds (wds/join adjusted-res-popn
+                              (ds/rename-columns correct-output {:adjusted-resident-popn
+                                                                 :adjusted-resident-popn-test})
+                              [:gss-code :year :sex :relationship :age-group])]
+      (is (= (:shape adjusted-res-popn) (:shape correct-output)))
+      (is (= (:column-names adjusted-res-popn) (:column-names correct-output)))
+      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :adjusted-resident-popn)
+                               (wds/subset-ds joined-ds :rows % :cols :adjusted-resident-popn-test)
+                               0.000001)
+                  (range (first (:shape joined-ds))))))))
+
 (deftest calc-household-popn-test
   (testing "The household population gets created!"
-    (let [resident-popn (read-inputs
-                         {:witan/name :input-resident-popn} [] [])
+    (let [resident-popn (ds/dataset (:adjusted-resident-popn test-outputs))
           institut-popn (read-inputs
-                         {:witan/name :input-institutional-popn} [] [])
-          result (calc-household-popn-1-0-0 {:resident-popn resident-popn
-                                             :institutional-popn institut-popn})]
-      (is (ds/dataset? (:household-popn result)))
-      (is (= #{:gss-code :age :sex :year :relationship :household-popn}
-             (set (:column-names (:household-popn result))))))))
+                         {:witan/name :input-institutional-popn-proj} [] [])
+          household-popn (:household-popn
+                          (calc-household-popn-1-0-0 {:adjusted-resident-popn resident-popn
+                                                      :institutional-popn institut-popn}))
+          correct-output (ds/dataset (:household-popn test-outputs))
+          joined-ds (wds/join household-popn
+                              (ds/rename-columns correct-output {:household-popn
+                                                                 :household-popn-test})
+                              [:gss-code :year :sex :relationship :age-group])]
+      (is (= (:shape household-popn) (:shape correct-output)))
+      (is (= (:column-names household-popn) (:column-names correct-output)))
+      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :household-popn)
+                               (wds/subset-ds joined-ds :rows % :cols :household-popn-test)
+                               0.000001)
+                  (range (first (:shape joined-ds))))))))
 
-(deftest grp-household-popn-test
-  (testing "The household population is grouped by five years bands"
-    (let [hh-popn (:household-popn
-                   (calc-household-popn-1-0-0
-                    {:resident-popn (read-inputs
-                                     {:witan/name :input-resident-popn} [] [])
-                     :institutional-popn (read-inputs
-                                          {:witan/name
-                                           :input-institutional-popn} [] [])}))
-          hh-popn-5yrs-bands (:household-popn-grp
-                              (grp-household-popn-1-0-0 {:household-popn hh-popn}))
-          correct-output (ds/dataset (:banded-projections test-outputs))]
-      (is (= hh-popn-5yrs-bands correct-output)))))
 
 (deftest calc-households-test
   (testing "The household population is turned into households"
-    (let [hh-popn-grp (ds/dataset (:banded-projections test-outputs))
+    (let [hh-popn (ds/dataset (:household-popn test-outputs))
           hh-repr-rates (read-inputs
                          {:witan/name :input-household-representative-rates} [] [])
           households-ds (:households
-                         (calc-households-1-0-0 {:household-popn-grp hh-popn-grp
+                         (calc-households-1-0-0 {:household-popn hh-popn
                                                  :household-representative-rates hh-repr-rates}))
           correct-output (ds/dataset (:households test-outputs))
           joined-ds (wds/join households-ds
