@@ -23,6 +23,11 @@
         (:column-names col-schema)))
 
 ;;Define schemas
+(def HouseholdPopulation
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword] [:sex (s/enum "F" "M")]
+                           [:year s/Int] [:relationship s/Str]
+                           [:household-popn java.lang.Double]]))
+
 (def PopulationProjections
   (make-ordered-ds-schema [[:gss-code s/Str] [:age s/Int] [:sex (s/enum "F" "M")]
                            [:year s/Int] [:population java.lang.Double]]))
@@ -49,10 +54,10 @@
                            [:year s/Int] [:relationship s/Str]
                            [:institutional-popn java.lang.Double]]))
 
-(def HouseholdRepresentativeRates
+(def HouseholdFormationRates
   (make-ordered-ds-schema [[:gss-code s/Str] [:year s/Int] [:sex (s/enum "F" "M")]
                            [:relationship s/Str] [:age-group s/Keyword]
-                           [:hh-repr-rates java.lang.Double]]))
+                           [:hh-formation-rates java.lang.Double]]))
 
 (def VacancyRates
   (make-ordered-ds-schema [[:gss-code s/Str] [:year s/Int]

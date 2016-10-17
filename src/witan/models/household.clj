@@ -15,11 +15,11 @@
    :witan/key :population
    :witan/schema sc/PopulationProjections})
 
-(definput get-resident-popn-1-0-0
-  {:witan/name :hh-model/get-resident-popn
+(definput get-household-popn-1-0-0
+  {:witan/name :hh-model/get-household-popn
    :witan/version "1.0.0"
-   :witan/key :resident-popn
-   :witan/schema sc/ResidentPopulation})
+   :witan/key :household-popn
+   :witan/schema sc/HouseholdPopulation})
 
 (definput get-institutional-popn-1-0-0
   {:witan/name :hh-model/get-institutional-popn
@@ -27,11 +27,11 @@
    :witan/key :institutional-popn
    :witan/schema sc/InstitutionalPopulation})
 
-(definput get-household-representative-rates-1-0-0
-  {:witan/name :hh-model/get-household-representative-rates
+(definput get-household-formation-rates-1-0-0
+  {:witan/name :hh-model/get-household-formation-rates
    :witan/version "1.0.0"
-   :witan/key :household-representative-rates
-   :witan/schema sc/HouseholdRepresentativeRates})
+   :witan/key :household-formation-rates
+   :witan/schema sc/HouseholdFormationRates})
 
 (definput get-vacancy-rates-1-0-0
   {:witan/name :hh-model/get-vacancy-rates
@@ -61,23 +61,35 @@
                            (wds/rollup :sum :population
                                        [:gss-code :year :sex :age-group]))})
 
-(defworkflowfn sum-resident-popn-1-0-0
-  "Takes in the resident populations.
-   Returns the same population summed by household type."
-  {:witan/name :hh-model/sum-resident-popn
-   :witan/version "1.0.0"
-   :witan/input-schema {:resident-popn sc/ResidentPopulation}
-   :witan/output-schema {:resident-popn-summed sc/ResidentPopulationSummed}}
-  [{:keys [resident-popn]} _]
-  {:resident-popn-summed (-> resident-popn
-                             (wds/rollup :sum :resident-popn
-                                         [:gss-code :year :age-group :sex])
-                             (ds/rename-columns {:resident-popn :resident-popn-summed}))})
-
-(defworkflowfn adjust-resident-proj-1-0-0
+(defworkflowfn adjust-hh-popn-1-0-0
   "Takes in the resident population and banded population
    projections. Returns the resident population projections."
-  {:witan/name :hh-model/adjust-resident-proj
+  {:witan/name :hh-model/adjust-hh-popn
+   :witan/version "1.0.0"
+   :witan/input-schema {:resident-popn sc/ResidentPopulation
+                        :resident-popn-summed sc/ResidentPopulationSummed
+                        :banded-projections sc/PopulationProjectionsGrouped}
+   :witan/output-schema {:adjusted-resident-popn sc/AdjustedResidentPopulation}}
+  [{:keys [resident-popn resident-popn-summed banded-projections]} _]
+  (let [joined-resident-popn (wds/join banded-projections resident-popn
+                                       [:gss-code :year :sex :age-group])
+        joined-summed-popn (wds/join resident-popn-summed joined-resident-popn
+                                     [:gss-code :year :sex :age-group])]
+    {:adjusted-resident-popn (-> joined-summed-popn
+                                 (wds/add-derived-column :adjusted-resident-popn
+                                                         [:resident-popn-summed :resident-popn
+                                                          :population]
+                                                         (fn [sum res popn]
+                                                           (* popn (wds/safe-divide
+                                                                    [res sum]))))
+                                 (ds/select-columns [:gss-code :age-group :sex
+                                                     :year :relationship
+                                                     :adjusted-resident-popn]))}))
+
+(defworkflowfn adjust-inst-popn-1-0-0
+  "Takes in the resident population and banded population
+   projections. Returns the resident population projections."
+  {:witan/name :hh-model/adjust-inst-popn
    :witan/version "1.0.0"
    :witan/input-schema {:resident-popn sc/ResidentPopulation
                         :resident-popn-summed sc/ResidentPopulationSummed
@@ -99,10 +111,78 @@
                                                           :year :relationship
                                                           :adjusted-resident-popn]))}))
 
-(defworkflowfn calc-household-popn-1-0-0
+(defworkflowfn calc-household-prop-1-0-0
   "Takes in the resident and institutional populations.
    Returns the household population."
-  {:witan/name :hh-model/calc-household-popn
+  {:witan/name :hh-model/calc-household-prop
+   :witan/version "1.0.0"
+   :witan/input-schema {:adjusted-resident-popn sc/AdjustedResidentPopulation
+                        :institutional-popn sc/InstitutionalPopulation}
+   :witan/output-schema {:household-popn sc/HouseholdPopulation}}
+  [{:keys [adjusted-resident-popn institutional-popn]} _]
+  {:household-popn (-> adjusted-resident-popn
+                       (wds/join institutional-popn
+                                 [:gss-code :age-group :year :sex :relationship])
+                       (wds/add-derived-column :household-popn
+                                               [:adjusted-resident-popn :institutional-popn] -)
+                       (ds/select-columns [:gss-code :age-group :sex :year
+                                           :relationship :household-popn]))})
+
+(defworkflowfn calc-resident-popn-1-0-0
+  "Takes in the resident and institutional populations.
+   Returns the household population."
+  {:witan/name :hh-model/calc-resident-popn
+   :witan/version "1.0.0"
+   :witan/input-schema {:adjusted-resident-popn sc/AdjustedResidentPopulation
+                        :institutional-popn sc/InstitutionalPopulation}
+   :witan/output-schema {:household-popn sc/HouseholdPopulation}}
+  [{:keys [adjusted-resident-popn institutional-popn]} _]
+  {:household-popn (-> adjusted-resident-popn
+                       (wds/join institutional-popn
+                                 [:gss-code :age-group :year :sex :relationship])
+                       (wds/add-derived-column :household-popn
+                                               [:adjusted-resident-popn :institutional-popn] -)
+                       (ds/select-columns [:gss-code :age-group :sex :year
+                                           :relationship :household-popn]))})
+
+(defworkflowfn calc-inst-prop-1-0-0
+  "Takes in the resident and institutional populations.
+   Returns the household population."
+  {:witan/name :hh-model/calc-inst-prop
+   :witan/version "1.0.0"
+   :witan/input-schema {:adjusted-resident-popn sc/AdjustedResidentPopulation
+                        :institutional-popn sc/InstitutionalPopulation}
+   :witan/output-schema {:household-popn sc/HouseholdPopulation}}
+  [{:keys [adjusted-resident-popn institutional-popn]} _]
+  {:household-popn (-> adjusted-resident-popn
+                       (wds/join institutional-popn
+                                 [:gss-code :age-group :year :sex :relationship])
+                       (wds/add-derived-column :household-popn
+                                               [:adjusted-resident-popn :institutional-popn] -)
+                       (ds/select-columns [:gss-code :age-group :sex :year
+                                           :relationship :household-popn]))})
+
+(defworkflowfn adj-inst-popn-1-0-0
+  "Takes in the resident and institutional populations.
+   Returns the household population."
+  {:witan/name :hh-model/adj-inst-popn
+   :witan/version "1.0.0"
+   :witan/input-schema {:adjusted-resident-popn sc/AdjustedResidentPopulation
+                        :institutional-popn sc/InstitutionalPopulation}
+   :witan/output-schema {:household-popn sc/HouseholdPopulation}}
+  [{:keys [adjusted-resident-popn institutional-popn]} _]
+  {:household-popn (-> adjusted-resident-popn
+                       (wds/join institutional-popn
+                                 [:gss-code :age-group :year :sex :relationship])
+                       (wds/add-derived-column :household-popn
+                                               [:adjusted-resident-popn :institutional-popn] -)
+                       (ds/select-columns [:gss-code :age-group :sex :year
+                                           :relationship :household-popn]))})
+
+(defworkflowfn adj-resident-popn-1-0-0
+  "Takes in the resident and institutional populations.
+   Returns the household population."
+  {:witan/name :hh-model/adj-resident-popn
    :witan/version "1.0.0"
    :witan/input-schema {:adjusted-resident-popn sc/AdjustedResidentPopulation
                         :institutional-popn sc/InstitutionalPopulation}

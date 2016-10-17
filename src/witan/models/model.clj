@@ -9,50 +9,61 @@
 
 (def hh-model-workflow
   "Defines each step of the household model"
-  [;; Household population
-   [:input-popn-projections :group-by-5-yrs]
-   [:input-resident-popn-proj :sum-by-household]
-   [:group-by-5-yrs :adjust-resident-popn-proj]
-   [:input-resident-popn-proj :adjust-resident-popn-proj]
-   [:sum-by-household :adjust-resident-popn-proj]
-   [:adjust-resident-popn-proj :calculate-household-popn]
-   [:input-institutional-popn-proj :calculate-household-popn]
+  [;; Adjust Household population
+   ;; ccm popn proj
+   [:input-popn-proj :group-by-5-yrs]
+   [:group-by-5-yrs :adjust-household-popn-proj]
+   [:group-by-5-yrs :adjust-institutional-popn-proj]
+   ;; dclg household proj
+   [:input-household-popn-proj :calculate-household-proportions]
+   [:calculate-household-proportions :adjust-household-popn-proj]
+   [:input-household-popn-proj :calculate-resident-popn-proj]
+   [:calculate-resident-popn-proj :calculate-household-proportions]
+   ;; dclg institutional proj
+   [:input-institutional-popn-proj :calculate-resident-popn-proj]
+   [:input-institutional-popn-proj :calculate-institutional-proportions]
+   [:calculate-institutional-proportions :adjust-institutional-popn-proj]
+   ;; dclg resident proj
+   [:calculate-resident-popn-proj :calculate-institutional-proportions]
+   [:adjust-household-popn-proj :calc-adj-resident-popn]
+   [:adjust-institutional-popn-proj :calc-adj-resident-popn]
+   [:calc-adj-resident-popn :output-adj-resident-popn]
 
-   ;; Households
-   [:calculate-household-popn :calculate-households]
-   [:input-household-representative-rates :calculate-households]
+   ;; Total Households
+   [:adjust-household-popn-proj :calculate-households]
+   [:input-household-formation-rates :calculate-households]
    [:calculate-households :calculate-total-households]
+   [:calculate-total-households :output-total-households]
 
-   ;; Household occupancy
+   ;; Dwellings
    [:input-vacancy-rates :calculate-occupancy-rates]
    [:input-second-homes-rates :calculate-occupancy-rates]
    [:calculate-total-households :calculate-dwellings]
    [:calculate-occupancy-rates :calculate-dwellings]
-   [:calculate-total-households :output-households]
    [:calculate-dwellings :output-dwellings]])
 
 (def hh-model-catalog
   "Provides metadata for each step of the household model"
   [;; Input functions
-   {:witan/name :input-popn-projections
+   {:witan/name :input-popn-proj
     :witan/version "1.0.0"
     :witan/type :input
     :witan/fn :hh-model/get-popn-proj
     :witan/params {:src ""}}
-   {:witan/name :input-resident-popn-proj
+   {:witan/name :input-household-popn-proj
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-resident-popn
+    :witan/fn :hh-model/get-household-popn
     :witan/params {:src ""}}
    {:witan/name :input-institutional-popn-proj
     :witan/version "1.0.0"
     :witan/type :input
     :witan/fn :hh-model/get-institutional-popn
     :witan/params {:src ""}}
-   {:witan/name :input-household-representative-rates
+   {:witan/name :input-household-formation-rates
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-household-representative-rates
+    :witan/fn :hh-model/get-household-formation-rates
     :witan/params {:src ""}}
    {:witan/name :input-vacancy-rates
     :witan/version "1.0.0"
@@ -69,18 +80,34 @@
     :witan/version "1.0.0"
     :witan/type :function
     :witan/fn :hh-model/grp-popn-proj}
-   {:witan/name :sum-by-household
+   {:witan/name :adjust-household-popn-proj
     :witan/version "1.0.0"
     :witan/type :function
-    :witan/fn :hh-model/sum-resident-popn}
-   {:witan/name :adjust-resident-popn-proj
+    :witan/fn :hh-model/adjust-hh-popn}
+   {:witan/name :adjust-institutional-popn-proj
     :witan/version "1.0.0"
     :witan/type :function
-    :witan/fn :hh-model/adjust-resident-proj}
-   {:witan/name :calculate-household-popn
+    :witan/fn :hh-model/adjust-inst-popn}
+   {:witan/name :calculate-household-proportions
     :witan/version "1.0.0"
     :witan/type :function
-    :witan/fn :hh-model/calc-household-popn}
+    :witan/fn :hh-model/calc-household-prop}
+   {:witan/name :calculate-resident-popn-proj
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/calc-resident-popn}
+   {:witan/name :calculate-institutional-proportions
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/calc-inst-prop}
+   {:witan/name :adjust-institutional-popn-proj
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/adj-inst-popn}
+   {:witan/name :calc-adj-resident-popn
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/adj-resident-popn}
    {:witan/name :calculate-households
     :witan/version "1.0.0"
     :witan/type :function
@@ -98,7 +125,11 @@
     :witan/type :function
     :witan/fn :hh-model/calc-dwellings}
    ;; Outputs
-   {:witan/name :output-households
+   {:witan/name :output-adj-resident-popn
+    :witan/version "1.0.0"
+    :witan/type :output
+    :witan/fn :hh-model/output-resident-popn}
+   {:witan/name :output-total-households
     :witan/version "1.0.0"
     :witan/type :output
     :witan/fn :hh-model/output-households}
