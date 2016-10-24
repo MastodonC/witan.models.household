@@ -8,7 +8,7 @@
             [witan.models.household :as hh]))
 
 (def hh-model-workflow
-  "Defines each step of the household model"  
+  "Defines each step of the household model"
   [[:input-popn :apportion-popn-by-relationship]
    [:input-dclg-household-popn :apportion-popn-by-relationship]
    [:input-dclg-institutional-popn :apportion-popn-by-relationship]
@@ -18,7 +18,7 @@
    [:calc-institutional-popn :calc-household-popn]
    [:input-dclg-household-representative-rates :calc-households]
    [:calc-household-popn :calc-households]
-   [:input-dwellings :convert-to-dwellings]
+   [:input-dclg-dwellings :convert-to-dwellings]
    [:input-vacancy-dwellings :convert-to-dwellings]
    [:calc-households :convert-to-dwellings]
    [:calc-households :output-households]
@@ -57,42 +57,42 @@
     :witan/version "1.0.0"
     :witan/type :input
     :witan/fn :hh-model/get-vacancy-dwellings
-    :witan/params {:src ""}}]
-  ;; Calculation functions
-  {:witan/name :apportion-popn-by-relationship
-   :witan/version "1.0.0"
-   :witan/type :function
-   :witan/fn :hh-model/apportion-popn-by-relationship}
-  {:witan/name :calc-institutional-popn
-   :witan/version "1.0.0"
-   :witan/type :function
-   :witan/fn :hh-model/calc-institutional-popn}
-  {:witan/name :calc-household-popn
-   :witan/version "1.0.0"
-   :witan/type :function
-   :witan/fn :hh-model/calc-household-popn}
-  {:witan/name :calc-households
-   :witan/version "1.0.0"
-   :witan/type :function
-   :witan/fn :hh-model/calc-households}
-  {:witan/name :convert-to-dwellings
-   :witan/version "1.0.0"
-   :witan/type :function
-   :witan/fn :hh-model/convert-to-dwellings
-   :witan/params {:second-home-rate 0.0}}
-  ;; Outputs
-  {:witan/name :output-households
-   :witan/version "1.0.0"
-   :witan/type :output
-   :witan/fn :hh-model/output-households}
-  {:witan/name :output-total-households
-   :witan/version "1.0.0"
-   :witan/type :output
-   :witan/fn :hh-model/output-total-households}
-  {:witan/name :output-dwellings
-   :witan/version "1.0.0"
-   :witan/type :output
-   :witan/fn :hh-model/output-dwellings})
+    :witan/params {:src ""}}
+   ;; Calculation functions
+   {:witan/name :apportion-popn-by-relationship
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/apportion-popn-by-relationship}
+   {:witan/name :calc-institutional-popn
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/calc-institutional-popn}
+   {:witan/name :calc-household-popn
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/calc-household-popn}
+   {:witan/name :calc-households
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/calc-households}
+   {:witan/name :convert-to-dwellings
+    :witan/version "1.0.0"
+    :witan/type :function
+    :witan/fn :hh-model/convert-to-dwellings
+    :witan/params {:second-home-rate 0.0}}
+   ;; Outputs
+   {:witan/name :output-households
+    :witan/version "1.0.0"
+    :witan/type :output
+    :witan/fn :hh-model/output-households}
+   {:witan/name :output-total-households
+    :witan/version "1.0.0"
+    :witan/type :output
+    :witan/fn :hh-model/output-total-households}
+   {:witan/name :output-dwellings
+    :witan/version "1.0.0"
+    :witan/type :output
+    :witan/fn :hh-model/output-dwellings}])
 
 (defmodel household-model
   "Defines the household model. Contains metadata,
@@ -110,20 +110,18 @@
     (available-fns [_]
       (map-fn-meta
        hh/get-popn-proj-1-0-0
-       hh/get-resident-popn-1-0-0
-       hh/get-institutional-popn-1-0-0
-       hh/get-household-representative-rates-1-0-0
-       hh/get-vacancy-rates-1-0-0
-       hh/get-second-homes-rates-1-0-0
-       hh/grp-popn-proj-1-0-0
-       hh/sum-resident-popn-1-0-0
-       hh/adjust-resident-proj-1-0-0
+       hh/get-dclg-household-popn-1-0-0
+       hh/get-dclg-institutional-popn-1-0-0
+       hh/get-dclg-household-representative-rates-1-0-0
+       hh/get-dwellings-1-0-0
+       hh/get-vacancy-dwellings-1-0-0
+       hh/apportion-popn-by-relationship-1-0-0
+       hh/calc-institutional-popn-1-0-0
        hh/calc-household-popn-1-0-0
        hh/calc-households-1-0-0
-       hh/calc-total-households-1-0-0
-       hh/calc-occupancy-rates-1-0-0
-       hh/calc-dwellings-1-0-0
+       hh/convert-to-dwellings-1-0-0
        hh/output-households-1-0-0
+       hh/output-total-households-1-0-0
        hh/output-dwellings-1-0-0))
     (available-models [_]
       (map-model-meta household-model))))
