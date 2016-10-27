@@ -106,18 +106,18 @@
       (is (= res-popn correct-output)))))
 
 (deftest sum-resident-popn-test
-  (testing "The resident projections are summed by household type"
+  (testing "The resident projections are summed by relationship"
     (let [resident-popn (ds/dataset (:dclg-resident-popn test-outputs))
           summed-res-popn (sum-resident-popn resident-popn)
           correct-output (ds/dataset (:resident-popn-summed test-outputs))]
       (is (= summed-res-popn correct-output)))))
 
-(deftest combine-resident-proj-test
+(deftest calc-resident-proj-test
   (testing "The resident proj from dclg are adjusted using CCM outputs grouped"
     (let [resident-popn (ds/dataset (:dclg-resident-popn test-outputs))
           banded-projections (ds/dataset (:banded-projections test-outputs))
           resident-popn-summed (ds/dataset (:resident-popn-summed test-outputs))
-          witan-res-popn (combine-resident-proj resident-popn
+          witan-res-popn (calc-resident-proj resident-popn
                                                    resident-popn-summed
                                                    banded-projections)
           correct-output (ds/dataset (:witan-resident-popn test-outputs))
@@ -163,6 +163,25 @@
                                                            :resident-popn witan-res-popn
                                                            :dclg-resident-popn dclg-res-popn}))
           correct-output (ds/dataset (:witan-institutional-popn test-outputs))
+          joined-ds (wds/join witan-inst-popn
+                              (ds/rename-columns correct-output {:institutional-popn
+                                                                 :institutional-popn-test})
+                              [:gss-code :year :sex :relationship :age-group])]
+      (is (= (:shape witan-inst-popn) (:shape correct-output)))
+      (is (= (:column-names witan-inst-popn) (:column-names correct-output)))
+      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :institutional-popn)
+                               (wds/subset-ds joined-ds :rows % :cols :institutional-popn-test)
+                               0.000001)
+                  (range (first (:shape joined-ds)))))))
+  (testing "The witan institutional population is calculated properly for 75+ popn"
+    (let [dclg-inst-popn (read-inputs {:witan/name :input-dclg-inst-popn-with-75+} [] [])
+          witan-res-popn (ds/dataset (:witan-resident-popn-with-75+ test-outputs))
+          dclg-res-popn (ds/dataset (:dclg-resident-popn-with-75+ test-outputs))
+          witan-inst-popn (:institutional-popn
+                           (calc-institutional-popn-1-0-0 {:dclg-institutional-popn dclg-inst-popn
+                                                           :resident-popn witan-res-popn
+                                                           :dclg-resident-popn dclg-res-popn}))
+          correct-output (ds/dataset (:witan-institutional-popn-with-75+ test-outputs))
           joined-ds (wds/join witan-inst-popn
                               (ds/rename-columns correct-output {:institutional-popn
                                                                  :institutional-popn-test})
@@ -235,14 +254,14 @@
                                                                 :dclg-dwellings dclg-dwellings
                                                                 :vacancy-dwellings vacancy-dwellings}
                                                                {:second-home-rate second-home-rate}))
-          correct-output (ds/dataset
-                          (:dwellings test-outputs))
+          correct-output (ds/dataset (:dwellings test-outputs))
           joined-ds (wds/join dwellings-ds
                               (ds/rename-columns correct-output {:dwellings :test-dwellings})
                               [:gss-code :year])]
+      (println joined-ds)
       (is (= (:shape dwellings-ds) (:shape correct-output)))
       (is (= (:column-names dwellings-ds) (:column-names correct-output)))
       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :dwellings)
                                (wds/subset-ds joined-ds :rows % :cols :test-dwellings)
-                               0.0001)
+                               0.00001)
                   (range (first (:shape joined-ds))))))))

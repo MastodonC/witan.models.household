@@ -70,14 +70,14 @@
 
 (defn sum-resident-popn
   "Takes in the resident populations.
-   Returns the same population summed by household type."
+   Returns the same population summed by relationship."
   [resident-popn]
   (-> resident-popn
       (wds/rollup :sum :dclg-resident-popn
                   [:gss-code :year :age-group :sex])
       (ds/rename-columns {:dclg-resident-popn :resident-popn-summed})))
 
-(defn combine-resident-proj
+(defn calc-resident-proj
   "Takes in the resident population and banded population
    projections. Returns the resident population projections."
   [resident-popn resident-popn-summed banded-projections]
@@ -111,9 +111,9 @@
   (let [popn-by-5yrs-bands (grp-popn-proj population)
         dclg-resident-popn (create-resident-popn dclg-household-popn dclg-institutional-popn)
         dclg-resident-by-relationship (sum-resident-popn dclg-resident-popn)]
-    {:resident-popn (combine-resident-proj dclg-resident-popn
-                                           dclg-resident-by-relationship
-                                           popn-by-5yrs-bands)
+    {:resident-popn (calc-resident-proj dclg-resident-popn
+                                        dclg-resident-by-relationship
+                                        popn-by-5yrs-bands)
      :dclg-resident-popn dclg-resident-popn}))
 
 (defworkflowfn calc-institutional-popn-1-0-0
@@ -190,16 +190,27 @@
    :witan/param-schema {:second-home-rate java.lang.Double}
    :witan/output-schema {:dwellings sc/Dwellings}}
   [{:keys [total-households dclg-dwellings vacancy-dwellings]} {:keys [second-home-rate]}]
-  (let [vacancy-rates (-> dclg-dwellings
-                          (wds/join vacancy-dwellings [:gss-code :year])
-                          (wds/add-derived-column :vacancy-rates
-                                                  [:vacancy-dwellings :dwellings] /)
-                          (ds/select-columns [:gss-code :year :vacancy-rates]))
-        second-home-rates (ds/dataset {:gss-code (wds/subset-ds vacancy-rates :cols :gss-code)
-                                       :year (wds/subset-ds vacancy-rates :cols :year)
+  (let [vacant-dwellings (wds/subset-ds vacancy-dwellings :cols :vacancy-dwellings)
+        last-year-dwellings (wds/subset-ds (wds/select-from-ds dclg-dwellings
+                                                               {:year {:eq (u/get-last-year
+                                                                            dclg-dwellings)}})
+                                           :cols :dwellings)
+        vacancy-rates (ds/dataset {:gss-code (u/make-coll (wds/subset-ds total-households
+                                                                         :cols :gss-code))
+                                   :year (u/make-coll (wds/subset-ds total-households :cols :year))
+                                   :vacancy-rates (repeat (count
+                                                           (u/make-coll
+                                                            (wds/subset-ds total-households
+                                                                           :cols :year)))
+                                                          (/ vacant-dwellings last-year-dwellings))})
+        second-home-rates (ds/dataset {:gss-code (u/make-coll
+                                                  (wds/subset-ds total-households :cols :gss-code))
+                                       :year (u/make-coll
+                                              (wds/subset-ds total-households :cols :year))
                                        :second-home-rates (repeat (count
-                                                                   (wds/subset-ds vacancy-rates
-                                                                                  :cols :year))
+                                                                   (u/make-coll
+                                                                    (wds/subset-ds total-households
+                                                                                   :cols :year)))
                                                                   second-home-rate)})]
     {:dwellings (-> vacancy-rates
                     (wds/join second-home-rates [:gss-code :year])
@@ -207,7 +218,9 @@
                     (wds/add-derived-column :dwellings
                                             [:households :second-home-rates :vacancy-rates]
                                             (fn [hh shr vr] (/ hh (- 1 (- vr shr)))))
-                    (ds/select-columns [:gss-code :year :dwellings]))}))
+                    (ds/select-columns [:gss-code :year :dwellings])
+                    (wds/select-from-ds {:year {:gt (u/get-last-year dclg-dwellings)}})
+                    (ds/join-rows dclg-dwellings))}))
 
 ;; Functions to handle the model outputs
 (defworkflowoutput output-households-1-0-0
