@@ -9,17 +9,17 @@
 
 (def hh-model-workflow
   "Defines each step of the household model"
-  [[:input-popn :apportion-popn-by-relationship]
-   [:input-dclg-household-popn :apportion-popn-by-relationship]
-   [:input-dclg-institutional-popn :apportion-popn-by-relationship]
-   [:input-dclg-institutional-popn :calc-institutional-popn]
+  [[:population :apportion-popn-by-relationship]
+   [:dclg-household-popn :apportion-popn-by-relationship]
+   [:dclg-institutional-popn :apportion-popn-by-relationship]
+   [:dclg-institutional-popn :calc-institutional-popn]
    [:apportion-popn-by-relationship :calc-institutional-popn]
    [:apportion-popn-by-relationship :calc-household-popn]
    [:calc-institutional-popn :calc-household-popn]
-   [:input-dclg-household-representative-rates :calc-households]
+   [:dclg-household-representative-rates :calc-households]
    [:calc-household-popn :calc-households]
-   [:input-dclg-dwellings :convert-to-dwellings]
-   [:input-vacancy-dwellings :convert-to-dwellings]
+   [:dclg-dwellings :convert-to-dwellings]
+   [:vacancy-dwellings :convert-to-dwellings]
    [:calc-households :convert-to-dwellings]
    [:calc-households :output-households]
    [:calc-households :output-total-households]
@@ -28,35 +28,35 @@
 (def hh-model-catalog
   "Provides metadata for each step of the household model"
   [ ;; Input functions
-   {:witan/name :input-popn
+   {:witan/name :population
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-popn-proj
+    :witan/fn :hh-model/population
     :witan/params {:src ""}}
-   {:witan/name :input-dclg-household-popn
+   {:witan/name :dclg-household-popn
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-dclg-household-popn
+    :witan/fn :hh-model/dclg-household-popn
     :witan/params {:src ""}}
-   {:witan/name :input-dclg-institutional-popn
+   {:witan/name :dclg-institutional-popn
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-dclg-institutional-popn
+    :witan/fn :hh-model/dclg-institutional-popn
     :witan/params {:src ""}}
-   {:witan/name :input-dclg-household-representative-rates
+   {:witan/name :dclg-household-representative-rates
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-dclg-household-representative-rates
+    :witan/fn :hh-model/dclg-household-representative-rates
     :witan/params {:src ""}}
-   {:witan/name :input-dclg-dwellings
+   {:witan/name :dclg-dwellings
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-dclg-dwellings
+    :witan/fn :hh-model/dclg-dwellings
     :witan/params {:src ""}}
-   {:witan/name :input-vacancy-dwellings
+   {:witan/name :vacancy-dwellings
     :witan/version "1.0.0"
     :witan/type :input
-    :witan/fn :hh-model/get-vacancy-dwellings
+    :witan/fn :hh-model/vacancy-dwellings
     :witan/params {:src ""}}
    ;; Calculation functions
    {:witan/name :apportion-popn-by-relationship
@@ -109,12 +109,12 @@
   (reify p/IModelLibrary
     (available-fns [_]
       (map-fn-meta
-       hh/get-popn-proj-1-0-0
-       hh/get-dclg-household-popn-1-0-0
-       hh/get-dclg-institutional-popn-1-0-0
-       hh/get-dclg-household-representative-rates-1-0-0
-       hh/get-dwellings-1-0-0
-       hh/get-vacancy-dwellings-1-0-0
+       hh/population-1-0-0
+       hh/dclg-household-popn-1-0-0
+       hh/dclg-institutional-popn-1-0-0
+       hh/dclg-household-representative-rates-1-0-0
+       hh/dclg-dwellings-1-0-0
+       hh/vacancy-dwellings-1-0-0
        hh/apportion-popn-by-relationship-1-0-0
        hh/calc-institutional-popn-1-0-0
        hh/calc-household-popn-1-0-0
