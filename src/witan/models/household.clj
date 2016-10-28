@@ -219,7 +219,7 @@
                        (wds/join total-households [:gss-code :year])
                        (wds/add-derived-column :dwellings
                                                [:households :second-home-rates :vacancy-rates]
-                                               (fn [hh shr vr] (/ hh (- 1 vr shr))))
+                                               (fn [hh shr vr] (/ hh (- (- 1 vr) shr))))
                        (ds/select-columns [:gss-code :year :dwellings])
                        (wds/select-from-ds {:year {:gt (u/get-last-year dclg-dwellings)}})))}))
 
