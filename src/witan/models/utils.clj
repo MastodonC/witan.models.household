@@ -1,5 +1,7 @@
 (ns ^{:doc "Defines helper functions for the household model."}
- witan.models.utils)
+    witan.models.utils
+  (:require [witan.workspace-api.utils :as utils]
+            [clojure.core.matrix.dataset :as ds]))
 
 (def age-grps
   "Same age groups as the DCLG data
@@ -18,3 +20,19 @@
   (first (keep (fn [grp] (if (some #(= % n) grp)
                            (get age-grps grp)))
                (keys age-grps))))
+
+(defn year-column-exists?
+  [dataset]
+  (contains? (set (:column-names dataset)) :year))
+
+(defn get-last-year
+  [dataset]
+  (utils/property-holds?  dataset year-column-exists?
+                          (str "Dataset must have a year column"))
+  (reduce max (ds/column dataset :year)))
+
+(defn make-coll [x]
+  (cond
+    (seq? x) x
+    (vector? x) x
+    :else (vector x)))

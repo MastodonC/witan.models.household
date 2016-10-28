@@ -9,182 +9,239 @@
             [witan.models.utils :as u]))
 
 ;; Functions to retrieve the five datasets needed
-(definput get-popn-proj-1-0-0
-  {:witan/name :hh-model/get-popn-proj
+(definput population-1-0-0
+  {:witan/name :hh-model/population
    :witan/version "1.0.0"
    :witan/key :population
    :witan/schema sc/PopulationProjections})
 
-(definput get-resident-popn-1-0-0
-  {:witan/name :hh-model/get-resident-popn
+(definput dclg-household-popn-1-0-0
+  {:witan/name :hh-model/dclg-household-popn
    :witan/version "1.0.0"
-   :witan/key :resident-popn
-   :witan/schema sc/ResidentPopulation})
+   :witan/key :dclg-household-popn
+   :witan/schema sc/HouseholdPopulation})
 
-(definput get-institutional-popn-1-0-0
-  {:witan/name :hh-model/get-institutional-popn
+(definput dclg-institutional-popn-1-0-0
+  {:witan/name :hh-model/dclg-institutional-popn
    :witan/version "1.0.0"
-   :witan/key :institutional-popn
-   :witan/schema sc/InstitutionalPopulation})
+   :witan/key :dclg-institutional-popn
+   :witan/schema sc/DclgInstitutionalPopulation})
 
-(definput get-household-representative-rates-1-0-0
-  {:witan/name :hh-model/get-household-representative-rates
+(definput dclg-household-representative-rates-1-0-0
+  {:witan/name :hh-model/dclg-household-representative-rates
    :witan/version "1.0.0"
-   :witan/key :household-representative-rates
+   :witan/key :dclg-household-representative-rates
    :witan/schema sc/HouseholdRepresentativeRates})
 
-(definput get-vacancy-rates-1-0-0
-  {:witan/name :hh-model/get-vacancy-rates
+(definput dclg-dwellings-1-0-0
+  {:witan/name :hh-model/dclg-dwellings
    :witan/version "1.0.0"
-   :witan/key :vacancy-rates
-   :witan/schema sc/VacancyRates})
+   :witan/key :dclg-dwellings
+   :witan/schema sc/Dwellings})
 
-(definput get-second-homes-rates-1-0-0
-  {:witan/name :hh-model/get-second-homes-rates
+(definput vacancy-dwellings-1-0-0
+  {:witan/name :hh-model/vacancy-dwellings
    :witan/version "1.0.0"
-   :witan/key :second-homes-rates
-   :witan/schema sc/SecondHomesRates})
+   :witan/key :vacancy-dwellings
+   :witan/schema sc/VacancyDwellings})
 
 ;; Functions defining calculations
-(defworkflowfn grp-popn-proj-1-0-0
+(defn grp-popn-proj
   "Takes in the CCM population projections.
    Returns the same population grouped by five years bands like DCLG data."
-  {:witan/name :hh-model/grp-popn-proj
-   :witan/version "1.0.0"
-   :witan/input-schema {:population sc/PopulationProjections}
-   :witan/output-schema {:banded-projections sc/PopulationProjectionsGrouped}}
-  [{:keys [population]} _]
-  {:banded-projections (-> population
-                           (wds/add-derived-column :age-group
-                                                   [:age]
-                                                   u/get-age-grp)
-                           (wds/rollup :sum :population
-                                       [:gss-code :year :sex :age-group]))})
+  [population]
+  (-> population
+      (wds/add-derived-column :age-group
+                              [:age]
+                              u/get-age-grp)
+      (wds/rollup :sum :population
+                  [:gss-code :year :sex :age-group])))
 
-(defworkflowfn sum-resident-popn-1-0-0
+(defn create-resident-popn
+  "Takes in dclg household and institutional populations.
+   Outputs a dclg resident population"
+  [dclg-hh-popn dclg-inst-popn]
+  (-> dclg-hh-popn
+      (wds/join dclg-inst-popn
+                [:gss-code :age-group :sex :year :relationship])
+      (wds/add-derived-column :dclg-resident-popn
+                              [:dclg-institutional-popn :household-popn] +)
+      (ds/select-columns [:gss-code :age-group :sex :year :relationship :dclg-resident-popn])))
+
+(defn sum-resident-popn
   "Takes in the resident populations.
-   Returns the same population summed by household type."
-  {:witan/name :hh-model/sum-resident-popn
-   :witan/version "1.0.0"
-   :witan/input-schema {:resident-popn sc/ResidentPopulation}
-   :witan/output-schema {:resident-popn-summed sc/ResidentPopulationSummed}}
-  [{:keys [resident-popn]} _]
-  {:resident-popn-summed (-> resident-popn
-                             (wds/rollup :sum :resident-popn
-                                         [:gss-code :year :age-group :sex])
-                             (ds/rename-columns {:resident-popn :resident-popn-summed}))})
+   Returns the same population summed by relationship."
+  [resident-popn]
+  (-> resident-popn
+      (wds/rollup :sum :dclg-resident-popn
+                  [:gss-code :year :age-group :sex])
+      (ds/rename-columns {:dclg-resident-popn :resident-popn-summed})))
 
-(defworkflowfn adjust-resident-proj-1-0-0
+(defn calc-resident-proj
   "Takes in the resident population and banded population
    projections. Returns the resident population projections."
-  {:witan/name :hh-model/adjust-resident-proj
-   :witan/version "1.0.0"
-   :witan/input-schema {:resident-popn sc/ResidentPopulation
-                        :resident-popn-summed sc/ResidentPopulationSummed
-                        :banded-projections sc/PopulationProjectionsGrouped}
-   :witan/output-schema {:adjusted-resident-popn sc/AdjustedResidentPopulation}}
-  [{:keys [resident-popn resident-popn-summed banded-projections]} _]
+  [resident-popn resident-popn-summed banded-projections]
   (let [joined-resident-popn (wds/join banded-projections resident-popn
                                        [:gss-code :year :sex :age-group])
         joined-summed-popn (wds/join resident-popn-summed joined-resident-popn
                                      [:gss-code :year :sex :age-group])]
-    {:adjusted-resident-popn (-> joined-summed-popn
-                                      (wds/add-derived-column :adjusted-resident-popn
-                                                              [:resident-popn-summed :resident-popn
-                                                               :population]
-                                                              (fn [sum res popn]
-                                                                (* popn (wds/safe-divide
-                                                                         [res sum]))))
-                                      (ds/select-columns [:gss-code :age-group :sex
-                                                          :year :relationship
-                                                          :adjusted-resident-popn]))}))
+    (-> joined-summed-popn
+        (wds/add-derived-column :resident-popn
+                                [:resident-popn-summed :dclg-resident-popn
+                                 :population]
+                                (fn [sum res popn]
+                                  (* popn (wds/safe-divide
+                                           [res sum]))))
+        (ds/select-columns [:gss-code :age-group :sex
+                            :year :relationship
+                            :resident-popn]))))
+
+(defworkflowfn apportion-popn-by-relationship-1-0-0
+  "Takes in a population (output of CCM), dclg household and institutional
+   populations. Returns a resident population with relationships and grouped
+   by the same age bands as the dclg."
+  {:witan/name :hh-model/apportion-popn-by-relationship
+   :witan/version "1.0.0"
+   :witan/input-schema {:population sc/PopulationProjections
+                        :dclg-household-popn sc/HouseholdPopulation
+                        :dclg-institutional-popn sc/DclgInstitutionalPopulation}
+   :witan/output-schema {:resident-popn sc/ResidentPopulation
+                         :dclg-resident-popn sc/DclgResidentPopulation}}
+  [{:keys [population dclg-household-popn dclg-institutional-popn]} _]
+  (let [popn-by-age-bands (grp-popn-proj population)
+        dclg-resident-popn (create-resident-popn dclg-household-popn dclg-institutional-popn)
+        dclg-resident-by-relationship (sum-resident-popn dclg-resident-popn)]
+    {:resident-popn (calc-resident-proj dclg-resident-popn
+                                        dclg-resident-by-relationship
+                                        popn-by-age-bands)
+     :dclg-resident-popn dclg-resident-popn}))
+
+(defworkflowfn calc-institutional-popn-1-0-0
+  "Takes in dclg institutional population and witan resident population.
+   Outputs witan institutional population."
+  {:witan/name :hh-model/calc-institutional-popn
+   :witan/version "1.0.0"
+   :witan/input-schema {:dclg-institutional-popn sc/DclgInstitutionalPopulation
+                        :resident-popn sc/ResidentPopulation
+                        :dclg-resident-popn sc/DclgResidentPopulation}
+   :witan/output-schema {:institutional-popn sc/InstitutionalPopulation}}
+  [{:keys [dclg-institutional-popn dclg-resident-popn resident-popn]} _]
+  {:institutional-popn (-> dclg-institutional-popn
+                           (wds/join dclg-resident-popn
+                                     [:gss-code :year :sex :age-group :relationship])
+                           (wds/join resident-popn
+                                     [:gss-code :year :sex :age-group :relationship])
+                           (wds/add-derived-column :institutional-popn
+                                                   [:age-group
+                                                    :resident-popn :dclg-resident-popn
+                                                    :dclg-institutional-popn]
+                                                   (fn [age res dres dinst]
+                                                     (if (some #(= age %)
+                                                               [:75-79 :80-84 :85+])
+                                                       (* (/ dinst dres) res) dinst)))
+                           (ds/select-columns [:gss-code :age-group :sex :year
+                                               :relationship :institutional-popn]))})
 
 (defworkflowfn calc-household-popn-1-0-0
   "Takes in the resident and institutional populations.
    Returns the household population."
   {:witan/name :hh-model/calc-household-popn
    :witan/version "1.0.0"
-   :witan/input-schema {:adjusted-resident-popn sc/AdjustedResidentPopulation
+   :witan/input-schema {:resident-popn sc/ResidentPopulation
                         :institutional-popn sc/InstitutionalPopulation}
    :witan/output-schema {:household-popn sc/HouseholdPopulation}}
-  [{:keys [adjusted-resident-popn institutional-popn]} _]
-  {:household-popn (-> adjusted-resident-popn
+  [{:keys [resident-popn institutional-popn]} _]
+  {:household-popn (-> resident-popn
                        (wds/join institutional-popn
                                  [:gss-code :age-group :year :sex :relationship])
                        (wds/add-derived-column :household-popn
-                                               [:adjusted-resident-popn :institutional-popn] -)
+                                               [:resident-popn :institutional-popn] -)
                        (ds/select-columns [:gss-code :age-group :sex :year
                                            :relationship :household-popn]))})
 
 (defworkflowfn calc-households-1-0-0
-  "Takes in household rates and grouped household population.
+  "Takes in household formation rates and grouped household population.
   Returns the number of households."
   {:witan/name :hh-model/calc-households
    :witan/version "1.0.0"
-   :witan/input-schema {:household-representative-rates sc/HouseholdRepresentativeRates
+   :witan/input-schema {:dclg-household-representative-rates sc/HouseholdRepresentativeRates
                         :household-popn sc/HouseholdPopulation}
-   :witan/output-schema {:households sc/Households}}
-  [{:keys [household-representative-rates household-popn]} _]
-  {:households (-> household-representative-rates
-                   (wds/join household-popn
-                             [:gss-code :year :sex :relationship :age-group])
-                   (wds/add-derived-column :households
-                                           [:household-popn :hh-repr-rates] *)
-                   (ds/select-columns [:gss-code :year :sex :relationship
-                                       :age-group :households]))})
+   :witan/output-schema {:households sc/Households
+                         :total-households sc/TotalHouseholds}}
+  [{:keys [dclg-household-representative-rates household-popn]} _]
+  (let [households (-> dclg-household-representative-rates
+                       (wds/join household-popn
+                                 [:gss-code :year :sex :relationship :age-group])
+                       (wds/add-derived-column :households
+                                               [:household-popn :hh-repr-rates] *)
+                       (ds/select-columns [:gss-code :year :sex :relationship
+                                           :age-group :households]))]
+    {:households households
+     :total-households (wds/rollup households :sum :households [:gss-code :year])}))
 
-(defworkflowfn calc-total-households-1-0-0
-  "Takes in the households.
-  Returns the total number of households."
-  {:witan/name :hh-model/calc-total-households
-   :witan/version "1.0.0"
-   :witan/input-schema {:households sc/Households}
-   :witan/output-schema {:total-households sc/TotalHouseholds}}
-  [{:keys [households]} _]
-  {:total-households (wds/rollup households :sum :households [:gss-code :year])})
-
-(defworkflowfn calc-occupancy-rates-1-0-0
-  "Takes in the vacancy rates and second homes rates.
-  Returns the occupancy rates."
-  {:witan/name :hh-model/calc-occupancy-rates
-   :witan/version "1.0.0"
-   :witan/input-schema {:vacancy-rates sc/VacancyRates
-                        :second-homes-rates sc/SecondHomesRates}
-   :witan/output-schema {:occupancy-rates sc/OccupancyRates}}
-  [{:keys [vacancy-rates second-homes-rates]} _]
-  {:occupancy-rates (-> vacancy-rates
-                        (wds/join second-homes-rates [:gss-code :year])
-                        (wds/add-derived-column :occupancy-rates
-                                                [:vacancy-rates :second-homes-rates] +)
-                        (ds/select-columns [:gss-code :year :occupancy-rates]))})
-
-(defworkflowfn calc-dwellings-1-0-0
-  "Takes in the total households and the occupancy rate.
+(defworkflowfn convert-to-dwellings-1-0-0
+  "Takes in the total households and the dwellings, vacancy dwellings and second home rates.
   Returns the number of dwellings."
-  {:witan/name :hh-model/calc-dwellings
+  {:witan/name :hh-model/convert-to-dwellings
    :witan/version "1.0.0"
    :witan/input-schema {:total-households sc/TotalHouseholds
-                        :occupancy-rates sc/OccupancyRates}
+                        :dclg-dwellings sc/Dwellings
+                        :vacancy-dwellings sc/VacancyDwellings}
+   :witan/param-schema {:second-home-rate java.lang.Double}
    :witan/output-schema {:dwellings sc/Dwellings}}
-  [{:keys [total-households occupancy-rates]} _]
-  {:dwellings (-> total-households
-                  (wds/join occupancy-rates [:gss-code :year])
-                  (wds/add-derived-column :dwellings
-                                          [:households :occupancy-rates]
-                                          (fn [hh occ] (* hh (- 1 occ))))
-                  (ds/select-columns [:gss-code :year :dwellings]))})
+  [{:keys [total-households dclg-dwellings vacancy-dwellings]} {:keys [second-home-rate]}]
+  (let [vacant-dwellings (wds/subset-ds vacancy-dwellings :cols :vacancy-dwellings)
+        last-year-dwellings (wds/subset-ds (wds/select-from-ds dclg-dwellings
+                                                               {:year {:eq (u/get-last-year
+                                                                            dclg-dwellings)}})
+                                           :cols :dwellings)
+        vacancy-rates (ds/dataset {:gss-code (u/make-coll (wds/subset-ds total-households
+                                                                         :cols :gss-code))
+                                   :year (u/make-coll (wds/subset-ds total-households :cols :year))
+                                   :vacancy-rates (repeat (count
+                                                           (u/make-coll
+                                                            (wds/subset-ds total-households
+                                                                           :cols :year)))
+                                                          (/ vacant-dwellings last-year-dwellings))})
+        second-home-rates (ds/dataset {:gss-code (u/make-coll
+                                                  (wds/subset-ds total-households :cols :gss-code))
+                                       :year (u/make-coll
+                                              (wds/subset-ds total-households :cols :year))
+                                       :second-home-rates (repeat (count
+                                                                   (u/make-coll
+                                                                    (wds/subset-ds total-households
+                                                                                   :cols :year)))
+                                                                  second-home-rate)})]
+    {:dwellings
+     (ds/join-rows dclg-dwellings
+                   (-> vacancy-rates
+                       (wds/join second-home-rates [:gss-code :year])
+                       (wds/join total-households [:gss-code :year])
+                       (wds/add-derived-column :dwellings
+                                               [:households :second-home-rates :vacancy-rates]
+                                               (fn [hh shr vr] (/ hh (- (- 1 vr) shr))))
+                       (ds/select-columns [:gss-code :year :dwellings])
+                       (wds/select-from-ds {:year {:gt (u/get-last-year dclg-dwellings)}})))}))
 
 ;; Functions to handle the model outputs
 (defworkflowoutput output-households-1-0-0
-  "Returns the total households and the dwellings"
+  "Returns the households"
   {:witan/name :hh-model/output-households
+   :witan/version "1.0.0"
+   :witan/input-schema {:households sc/Households}}
+  [{:keys [households]} _]
+  {:households households})
+
+(defworkflowoutput output-total-households-1-0-0
+  "Returns the total households"
+  {:witan/name :hh-model/output-total-households
    :witan/version "1.0.0"
    :witan/input-schema {:total-households sc/TotalHouseholds}}
   [{:keys [total-households]} _]
   {:total-households total-households})
 
 (defworkflowoutput output-dwellings-1-0-0
-  "Returns the total households and the dwellings"
+  "Returns the dwellings"
   {:witan/name :hh-model/output-dwellings
    :witan/version "1.0.0"
    :witan/input-schema {:dwellings sc/Dwellings}}
