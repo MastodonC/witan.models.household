@@ -234,6 +234,18 @@
 
   :total-households [{:gss-code "001" :year 2015 :households 14000.0}]
 
+  :total-households-year-range [{:gss-code "001" :year 2015 :households 14000.0}
+                                {:gss-code "001" :year 2016 :households 15000.0}
+                                {:gss-code "001" :year 2017 :households 16000.0}
+                                {:gss-code "001" :year 2018 :households 17000.0}]
+
   :dwellings [{:gss-code "001" :year 2013 :dwellings 100.0}
               {:gss-code "001" :year 2014 :dwellings 100.0}
-              {:gss-code "001" :year 2015 :dwellings 100.0}]}}
+              {:gss-code "001" :year 2015 :dwellings 100.0}]
+
+  :dwellings-year-range [{:gss-code "001" :year 2013 :dwellings 100.0}
+                         {:gss-code "001" :year 2014 :dwellings 100.0}
+                         {:gss-code "001" :year 2015 :dwellings 100.0}
+                         {:gss-code "001" :year 2016 :dwellings 17857.14285714286}
+                         {:gss-code "001" :year 2017 :dwellings 19047.61904761905}
+                         {:gss-code "001" :year 2018 :dwellings 20238.09523809524}]}}

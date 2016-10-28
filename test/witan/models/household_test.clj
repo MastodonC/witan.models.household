@@ -183,7 +183,7 @@
                   (range (first (:shape joined-total-hh-ds))))))))
 
 (deftest convert-to-dwellings-test
-  (testing "The number of dwellings is calculated correctly"
+  (testing "The number of dwellings for the base year is overwritten by historical data"
     (let [total-households (ds/dataset (:total-households test-outputs))
           dclg-dwellings (read-inputs
                              {:witan/name :dclg-dwellings} [] [])
@@ -198,6 +198,29 @@
           joined-ds (wds/join dwellings-ds
                               (ds/rename-columns correct-output {:dwellings :test-dwellings})
                               [:gss-code :year])]
+      (is (= (:shape dwellings-ds) (:shape correct-output)))
+      (is (= (:column-names dwellings-ds) (:column-names correct-output)))
+      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :dwellings)
+                               (wds/subset-ds joined-ds :rows % :cols :test-dwellings)
+                               0.00001)
+                  (range (first (:shape joined-ds)))))))
+  (testing "The number of dwellings is calculated from the first year of projections onwards"
+    (let [total-households (ds/dataset (:total-households-year-range test-outputs))
+          dclg-dwellings (read-inputs
+                          {:witan/name :dclg-dwellings} [] [])
+          vacancy-dwellings (read-inputs
+                             {:witan/name :vacancy-dwellings} [] [])
+          second-home-rate 0.0
+          dwellings-ds (:dwellings (convert-to-dwellings-1-0-0 {:total-households total-households
+                                                                :dclg-dwellings dclg-dwellings
+                                                                :vacancy-dwellings vacancy-dwellings}
+                                                               {:second-home-rate second-home-rate}))
+          correct-output (ds/dataset (:dwellings-year-range test-outputs))
+          joined-ds (wds/join dwellings-ds
+                              (ds/rename-columns correct-output {:dwellings :test-dwellings})
+                              [:gss-code :year])]
+      (println dwellings-ds)
+      (println joined-ds)
       (is (= (:shape dwellings-ds) (:shape correct-output)))
       (is (= (:column-names dwellings-ds) (:column-names correct-output)))
       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :dwellings)

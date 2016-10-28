@@ -212,15 +212,16 @@
                                                                     (wds/subset-ds total-households
                                                                                    :cols :year)))
                                                                   second-home-rate)})]
-    {:dwellings (-> vacancy-rates
-                    (wds/join second-home-rates [:gss-code :year])
-                    (wds/join total-households [:gss-code :year])
-                    (wds/add-derived-column :dwellings
-                                            [:households :second-home-rates :vacancy-rates]
-                                            (fn [hh shr vr] (/ hh (- 1 vr shr))))
-                    (ds/select-columns [:gss-code :year :dwellings])
-                    (wds/select-from-ds {:year {:gt (u/get-last-year dclg-dwellings)}})
-                    (ds/join-rows dclg-dwellings))}))
+    {:dwellings
+     (ds/join-rows dclg-dwellings
+                   (-> vacancy-rates
+                       (wds/join second-home-rates [:gss-code :year])
+                       (wds/join total-households [:gss-code :year])
+                       (wds/add-derived-column :dwellings
+                                               [:households :second-home-rates :vacancy-rates]
+                                               (fn [hh shr vr] (/ hh (- 1 vr shr))))
+                       (ds/select-columns [:gss-code :year :dwellings])
+                       (wds/select-from-ds {:year {:gt (u/get-last-year dclg-dwellings)}})))}))
 
 ;; Functions to handle the model outputs
 (defworkflowoutput output-households-1-0-0
