@@ -108,12 +108,12 @@
    :witan/output-schema {:resident-popn sc/ResidentPopulation
                          :dclg-resident-popn sc/DclgResidentPopulation}}
   [{:keys [population dclg-household-popn dclg-institutional-popn]} _]
-  (let [popn-by-5yrs-bands (grp-popn-proj population)
+  (let [popn-by-age-bands (grp-popn-proj population)
         dclg-resident-popn (create-resident-popn dclg-household-popn dclg-institutional-popn)
         dclg-resident-by-relationship (sum-resident-popn dclg-resident-popn)]
     {:resident-popn (calc-resident-proj dclg-resident-popn
                                         dclg-resident-by-relationship
-                                        popn-by-5yrs-bands)
+                                        popn-by-age-bands)
      :dclg-resident-popn dclg-resident-popn}))
 
 (defworkflowfn calc-institutional-popn-1-0-0

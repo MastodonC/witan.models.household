@@ -219,8 +219,6 @@
           joined-ds (wds/join dwellings-ds
                               (ds/rename-columns correct-output {:dwellings :test-dwellings})
                               [:gss-code :year])]
-      (println dwellings-ds)
-      (println joined-ds)
       (is (= (:shape dwellings-ds) (:shape correct-output)))
       (is (= (:column-names dwellings-ds) (:column-names correct-output)))
       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :dwellings)
