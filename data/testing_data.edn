@@ -21,69 +21,91 @@
                {:gss-code "001" :age 38 :sex "M" :year 2015 :population 4000.0}
                {:gss-code "001" :age 39 :sex "M" :year 2015 :population 4000.0}]
 
-  :dclg-household-popn  [{:gss-code "001" :age-group :30-34 :sex "F"
+  :dclg-household-popn  [{:gss-code "001" :age-group :30_34 :sex "F"
                           :year 2015 :relationship "S" :household-popn 30000.0}
-                         {:gss-code "001" :age-group :35-39 :sex "F"
+                         {:gss-code "001" :age-group :35_39 :sex "F"
                           :year 2015 :relationship "S" :household-popn 30000.0}
-                         {:gss-code "001" :age-group :30-34 :sex "M"
+                         {:gss-code "001" :age-group :30_34 :sex "M"
                           :year 2015 :relationship "S" :household-popn 30500.0}
-                         {:gss-code "001" :age-group :35-39 :sex "M"
+                         {:gss-code "001" :age-group :35_39 :sex "M"
                           :year 2015 :relationship "S" :household-popn 30600.0}
-                         {:gss-code "001" :age-group :30-34 :sex "F"
+                         {:gss-code "001" :age-group :30_34 :sex "F"
                           :year 2015 :relationship "C" :household-popn 26000.0}
-                         {:gss-code "001" :age-group :35-39 :sex "F"
+                         {:gss-code "001" :age-group :35_39 :sex "F"
                           :year 2015 :relationship "C" :household-popn 28000.0}
-                         {:gss-code "001" :age-group :30-34 :sex "M"
+                         {:gss-code "001" :age-group :30_34 :sex "M"
                           :year 2015 :relationship "C" :household-popn 25500.0}
-                         {:gss-code "001" :age-group :35-39 :sex "M"
+                         {:gss-code "001" :age-group :35_39 :sex "M"
                           :year 2015 :relationship "C" :household-popn 30100.0}]
 
-  :dclg-institutional-popn [{:gss-code "001" :age-group :30-34 :sex "F"
-                             :year 2015 :relationship "S" :dclg-institutional-popn 5000.0}
-                            {:gss-code "001" :age-group :35-39 :sex "F"
-                             :year 2015 :relationship "S" :dclg-institutional-popn 5000.0}
-                            {:gss-code "001" :age-group :30-34 :sex "M"
-                             :year 2015 :relationship "S" :dclg-institutional-popn 5000.0}
-                            {:gss-code "001" :age-group :35-39 :sex "M"
-                             :year 2015 :relationship "S" :dclg-institutional-popn 5000.0}
-                            {:gss-code "001" :age-group :30-34 :sex "F"
-                             :year 2015 :relationship "C" :dclg-institutional-popn 5000.0}
-                            {:gss-code "001" :age-group :35-39 :sex "F"
-                             :year 2015 :relationship "C" :dclg-institutional-popn 5000.0}
-                            {:gss-code "001" :age-group :30-34 :sex "M"
-                             :year 2015 :relationship "C" :dclg-institutional-popn 5000.0}
-                            {:gss-code "001" :age-group :35-39 :sex "M"
-                             :year 2015 :relationship "C" :dclg-institutional-popn 5000.0}]
+  :dclg-institutional-popn [{:gss-code "001" :age-group :30_34 :sex "F"
+                             :year 2015 :relationship "S"
+                             :dclg-institutional-popn 5000.0}
+                            {:gss-code "001" :age-group :35_39 :sex "F"
+                             :year 2015 :relationship "S"
+                             :dclg-institutional-popn 5000.0}
+                            {:gss-code "001" :age-group :30_34 :sex "M"
+                             :year 2015 :relationship "S"
+                             :dclg-institutional-popn 5000.0}
+                            {:gss-code "001" :age-group :35_39 :sex "M"
+                             :year 2015 :relationship "S"
+                             :dclg-institutional-popn 5000.0}
+                            {:gss-code "001" :age-group :30_34 :sex "F"
+                             :year 2015 :relationship "C"
+                             :dclg-institutional-popn 5000.0}
+                            {:gss-code "001" :age-group :35_39 :sex "F"
+                             :year 2015 :relationship "C"
+                             :dclg-institutional-popn 5000.0}
+                            {:gss-code "001" :age-group :30_34 :sex "M"
+                             :year 2015 :relationship "C"
+                             :dclg-institutional-popn 5000.0}
+                            {:gss-code "001" :age-group :35_39 :sex "M"
+                             :year 2015 :relationship "C"
+                             :dclg-institutional-popn 5000.0}]
 
-  :dclg-inst-popn-with-75+ [{:gss-code "001" :age-group :60-64 :sex "F"
-                             :year 2015 :relationship "P" :dclg-institutional-popn 1500.0}
-                            {:gss-code "001" :age-group :65-69 :sex "F"
-                             :year 2015 :relationship "P" :dclg-institutional-popn 3000.0}
-                            {:gss-code "001" :age-group :70-74 :sex "F"
-                             :year 2015 :relationship "P" :dclg-institutional-popn 5000.0}
-                            {:gss-code "001" :age-group :75-79 :sex "F"
-                             :year 2015 :relationship "P" :dclg-institutional-popn 8000.0}
-                            {:gss-code "001" :age-group :80-84 :sex "F"
-                             :year 2015 :relationship "P" :dclg-institutional-popn 10000.0}
-                            {:gss-code "001" :age-group :85+ :sex "F"
-                             :year 2015 :relationship "P" :dclg-institutional-popn 13000.0}]
+  :dclg-inst-popn-with-75+ [{:gss-code "001" :age-group :60_64 :sex "F"
+                             :year 2015 :relationship "P"
+                             :dclg-institutional-popn 1500.0}
+                            {:gss-code "001" :age-group :65_69 :sex "F"
+                             :year 2015 :relationship "P"
+                             :dclg-institutional-popn 3000.0}
+                            {:gss-code "001" :age-group :70_74 :sex "F"
+                             :year 2015 :relationship "P"
+                             :dclg-institutional-popn 5000.0}
+                            {:gss-code "001" :age-group :75_79 :sex "F"
+                             :year 2015 :relationship "P"
+                             :dclg-institutional-popn 8000.0}
+                            {:gss-code "001" :age-group :80_84 :sex "F"
+                             :year 2015 :relationship "P"
+                             :dclg-institutional-popn 10000.0}
+                            {:gss-code "001" :age-group :85& :sex "F"
+                             :year 2015 :relationship "P"
+                             :dclg-institutional-popn 13000.0}]
 
-  :dclg-household-representative-rates [{:gss-code "001" :year 2015 :sex "F" :relationship "S"
-                                         :age-group :30-34 :hh-repr-rates 0.4}
-                                        {:gss-code "001" :year 2015 :sex "F" :relationship "S"
-                                         :age-group :35-39 :hh-repr-rates 0.3}
-                                        {:gss-code "001" :year 2015 :sex "M" :relationship "S"
-                                         :age-group :30-34 :hh-repr-rates 0.4}
-                                        {:gss-code "001" :year 2015 :sex "M" :relationship "S"
-                                         :age-group :35-39 :hh-repr-rates 0.3}
-                                        {:gss-code "001" :year 2015 :sex "F" :relationship "C"
-                                         :age-group :30-34 :hh-repr-rates 0.4}
-                                        {:gss-code "001" :year 2015 :sex "F" :relationship "C"
-                                         :age-group :35-39 :hh-repr-rates 0.3}
-                                        {:gss-code "001" :year 2015 :sex "M" :relationship "C"
-                                         :age-group :30-34 :hh-repr-rates 0.4}
-                                        {:gss-code "001" :year 2015 :sex "M" :relationship "C"
-                                         :age-group :35-39 :hh-repr-rates 0.3}]
+  :dclg-household-representative-rates [{:gss-code "001" :age-group :30_34 :sex "F"
+                                         :year 2015 :relationship "S"
+                                         :hh-repr-rates 0.4}
+                                        {:gss-code "001" :age-group :35_39 :sex "F"
+                                         :year 2015 :relationship "S"
+                                         :hh-repr-rates 0.3}
+                                        {:gss-code "001" :age-group :30_34 :sex "M"
+                                         :year 2015 :relationship "S"
+                                         :hh-repr-rates 0.4}
+                                        {:gss-code "001" :age-group :35_39 :sex "M"
+                                         :year 2015 :relationship "S"
+                                         :hh-repr-rates 0.3}
+                                        {:gss-code "001" :age-group :30_34 :sex "F"
+                                         :year 2015 :relationship "C"
+                                         :hh-repr-rates 0.4}
+                                        {:gss-code "001" :age-group :35_39 :sex "F"
+                                         :year 2015 :relationship "C"
+                                         :hh-repr-rates 0.3}
+                                        {:gss-code "001" :age-group :30_34 :sex "M"
+                                         :year 2015 :relationship "C"
+                                         :hh-repr-rates 0.4}
+                                        {:gss-code "001" :age-group :35_39 :sex "M"
+                                         :year 2015 :relationship "C"
+                                         :hh-repr-rates 0.3}]
 
   :dclg-dwellings [{:gss-code "001" :year 2013 :dwellings 100.0}
                    {:gss-code "001" :year 2014 :dwellings 100.0}
@@ -94,143 +116,159 @@
 
  :test-outputs
 
- {:banded-projections [{:gss-code "001" :year 2015 :sex "F" :age-group :30-34 :population 20000.0}
-                       {:gss-code "001" :year 2015 :sex "F" :age-group :35-39 :population 20000.0}
-                       {:gss-code "001" :year 2015 :sex "M" :age-group :30-34 :population 20000.0}
-                       {:gss-code "001" :year 2015 :sex "M" :age-group :35-39 :population 20000.0}]
+ {:banded-projections [{:gss-code "001" :year 2015 :sex "F" :age-group :30_34
+                        :population 20000.0}
+                       {:gss-code "001" :year 2015 :sex "F" :age-group :35_39
+                        :population 20000.0}
+                       {:gss-code "001" :year 2015 :sex "M" :age-group :30_34
+                        :population 20000.0}
+                       {:gss-code "001" :year 2015 :sex "M" :age-group :35_39
+                        :population 20000.0}]
 
-  :dclg-resident-popn [{:gss-code "001" :age-group :30-34 :sex "F"
+  :dclg-resident-popn [{:gss-code "001" :age-group :30_34 :sex "F"
                         :year 2015 :relationship "S" :dclg-resident-popn 35000.0}
-                       {:gss-code "001" :age-group :35-39 :sex "F"
+                       {:gss-code "001" :age-group :35_39 :sex "F"
                         :year 2015 :relationship "S" :dclg-resident-popn 35000.0}
-                       {:gss-code "001" :age-group :30-34 :sex "M"
+                       {:gss-code "001" :age-group :30_34 :sex "M"
                         :year 2015 :relationship "S" :dclg-resident-popn 35500.0}
-                       {:gss-code "001" :age-group :35-39 :sex "M"
+                       {:gss-code "001" :age-group :35_39 :sex "M"
                         :year 2015 :relationship "S" :dclg-resident-popn 35600.0}
-                       {:gss-code "001" :age-group :30-34 :sex "F"
+                       {:gss-code "001" :age-group :30_34 :sex "F"
                         :year 2015 :relationship "C" :dclg-resident-popn 31000.0}
-                       {:gss-code "001" :age-group :35-39 :sex "F"
+                       {:gss-code "001" :age-group :35_39 :sex "F"
                         :year 2015 :relationship "C" :dclg-resident-popn 33000.0}
-                       {:gss-code "001" :age-group :30-34 :sex "M"
+                       {:gss-code "001" :age-group :30_34 :sex "M"
                         :year 2015 :relationship "C" :dclg-resident-popn 30500.0}
-                       {:gss-code "001" :age-group :35-39 :sex "M"
+                       {:gss-code "001" :age-group :35_39 :sex "M"
                         :year 2015 :relationship "C" :dclg-resident-popn 35100.0}]
 
-  :dclg-resident-popn-with-75+ [{:gss-code "001" :age-group :60-64 :sex "F"
-                                 :year 2015 :relationship "P" :dclg-resident-popn 25000.0}
-                                {:gss-code "001" :age-group :65-69 :sex "F"
-                                 :year 2015 :relationship "P" :dclg-resident-popn 22500.0}
-                                {:gss-code "001" :age-group :70-74 :sex "F"
-                                 :year 2015 :relationship "P" :dclg-resident-popn 10000.0}
-                                {:gss-code "001" :age-group :75-79 :sex "F"
-                                 :year 2015 :relationship "P" :dclg-resident-popn 8000.0}
-                                {:gss-code "001" :age-group :80-84 :sex "F"
-                                 :year 2015 :relationship "P" :dclg-resident-popn 5000.0}
-                                {:gss-code "001" :age-group :85+ :sex "F"
-                                 :year 2015 :relationship "P" :dclg-resident-popn 3000.0}]
+  :dclg-resident-popn-with-75+ [{:gss-code "001" :age-group :60_64 :sex "F"
+                                 :year 2015 :relationship "P"
+                                 :dclg-resident-popn 25000.0}
+                                {:gss-code "001" :age-group :65_69 :sex "F"
+                                 :year 2015 :relationship "P"
+                                 :dclg-resident-popn 22500.0}
+                                {:gss-code "001" :age-group :70_74 :sex "F"
+                                 :year 2015 :relationship "P"
+                                 :dclg-resident-popn 10000.0}
+                                {:gss-code "001" :age-group :75_79 :sex "F"
+                                 :year 2015 :relationship "P"
+                                 :dclg-resident-popn 8000.0}
+                                {:gss-code "001" :age-group :80_84 :sex "F"
+                                 :year 2015 :relationship "P"
+                                 :dclg-resident-popn 5000.0}
+                                {:gss-code "001" :age-group :85& :sex "F"
+                                 :year 2015 :relationship "P"
+                                 :dclg-resident-popn 3000.0}]
 
   :resident-popn-summed [{:gss-code "001" :year 2015
-                          :age-group :30-34 :sex "F" :resident-popn-summed 66000.0}
+                          :age-group :30_34 :sex "F" :resident-popn-summed 66000.0}
                          {:gss-code "001" :year 2015
-                          :age-group :35-39 :sex "F" :resident-popn-summed 68000.0}
+                          :age-group :35_39 :sex "F" :resident-popn-summed 68000.0}
                          {:gss-code "001" :year 2015
-                          :age-group :30-34 :sex "M" :resident-popn-summed 66000.0}
+                          :age-group :30_34 :sex "M" :resident-popn-summed 66000.0}
                          {:gss-code "001" :year 2015
-                          :age-group :35-39 :sex "M" :resident-popn-summed 70700.0}]
+                          :age-group :35_39 :sex "M" :resident-popn-summed 70700.0}]
 
-  :witan-resident-popn [{:gss-code "001" :age-group :30-34 :sex "F"
+  :witan-resident-popn [{:gss-code "001" :age-group :30_34 :sex "F"
                          :year 2015 :relationship "S" :resident-popn 10606.060606061}
-                        {:gss-code "001" :age-group :35-39 :sex "F"
+                        {:gss-code "001" :age-group :35_39 :sex "F"
                          :year 2015 :relationship "S" :resident-popn 10294.117647059}
-                        {:gss-code "001" :age-group :30-34 :sex "M"
+                        {:gss-code "001" :age-group :30_34 :sex "M"
                          :year 2015 :relationship "S" :resident-popn 10757.575757576}
-                        {:gss-code "001" :age-group :35-39 :sex "M"
+                        {:gss-code "001" :age-group :35_39 :sex "M"
                          :year 2015 :relationship "S" :resident-popn 10070.72135785}
-                        {:gss-code "001" :age-group :30-34 :sex "F"
+                        {:gss-code "001" :age-group :30_34 :sex "F"
                          :year 2015 :relationship "C" :resident-popn 9393.939393939}
-                        {:gss-code "001" :age-group :35-39 :sex "F"
+                        {:gss-code "001" :age-group :35_39 :sex "F"
                          :year 2015 :relationship "C" :resident-popn 9705.882352941}
-                        {:gss-code "001" :age-group :30-34 :sex "M"
+                        {:gss-code "001" :age-group :30_34 :sex "M"
                          :year 2015 :relationship "C" :resident-popn 9242.424242424}
-                        {:gss-code "001" :age-group :35-39 :sex "M"
+                        {:gss-code "001" :age-group :35_39 :sex "M"
                          :year 2015 :relationship "C" :resident-popn 9929.27864215}]
 
-  :witan-resident-popn-with-75+ [{:gss-code "001" :age-group :60-64 :sex "F"
+  :witan-resident-popn-with-75+ [{:gss-code "001" :age-group :60_64 :sex "F"
                                   :year 2015 :relationship "P" :resident-popn 24070.0}
-                                 {:gss-code "001" :age-group :65-69 :sex "F"
+                                 {:gss-code "001" :age-group :65_69 :sex "F"
                                   :year 2015 :relationship "P" :resident-popn 22609.0}
-                                 {:gss-code "001" :age-group :70-74 :sex "F"
+                                 {:gss-code "001" :age-group :70_74 :sex "F"
                                   :year 2015 :relationship "P" :resident-popn 10586.0}
-                                 {:gss-code "001" :age-group :75-79 :sex "F"
+                                 {:gss-code "001" :age-group :75_79 :sex "F"
                                   :year 2015 :relationship "P" :resident-popn 8157.0}
-                                 {:gss-code "001" :age-group :80-84 :sex "F"
+                                 {:gss-code "001" :age-group :80_84 :sex "F"
                                   :year 2015 :relationship "P" :resident-popn 5987.0}
-                                 {:gss-code "001" :age-group :85+ :sex "F"
+                                 {:gss-code "001" :age-group :85& :sex "F"
                                   :year 2015 :relationship "P" :resident-popn 3473.0}]
 
-  :witan-institutional-popn [{:gss-code "001" :age-group :30-34 :sex "F"
+  :witan-institutional-popn [{:gss-code "001" :age-group :30_34 :sex "F"
                               :year 2015 :relationship "S" :institutional-popn 5000.0}
-                             {:gss-code "001" :age-group :35-39 :sex "F"
+                             {:gss-code "001" :age-group :35_39 :sex "F"
                               :year 2015 :relationship "S" :institutional-popn 5000.0}
-                             {:gss-code "001" :age-group :30-34 :sex "M"
+                             {:gss-code "001" :age-group :30_34 :sex "M"
                               :year 2015 :relationship "S" :institutional-popn 5000.0}
-                             {:gss-code "001" :age-group :35-39 :sex "M"
+                             {:gss-code "001" :age-group :35_39 :sex "M"
                               :year 2015 :relationship "S" :institutional-popn 5000.0}
-                             {:gss-code "001" :age-group :30-34 :sex "F"
+                             {:gss-code "001" :age-group :30_34 :sex "F"
                               :year 2015 :relationship "C" :institutional-popn 5000.0}
-                             {:gss-code "001" :age-group :35-39 :sex "F"
+                             {:gss-code "001" :age-group :35_39 :sex "F"
                               :year 2015 :relationship "C" :institutional-popn 5000.0}
-                             {:gss-code "001" :age-group :30-34 :sex "M"
+                             {:gss-code "001" :age-group :30_34 :sex "M"
                               :year 2015 :relationship "C" :institutional-popn 5000.0}
-                             {:gss-code "001" :age-group :35-39 :sex "M"
+                             {:gss-code "001" :age-group :35_39 :sex "M"
                               :year 2015 :relationship "C" :institutional-popn 5000.0}]
 
-  :witan-institutional-popn-with-75+ [{:gss-code "001" :age-group :60-64 :sex "F"
-                                       :year 2015 :relationship "P" :institutional-popn 1500.0}
-                                      {:gss-code "001" :age-group :65-69 :sex "F"
-                                       :year 2015 :relationship "P" :institutional-popn 3000.0}
-                                      {:gss-code "001" :age-group :70-74 :sex "F"
-                                       :year 2015 :relationship "P" :institutional-popn 5000.0}
-                                      {:gss-code "001" :age-group :75-79 :sex "F"
-                                       :year 2015 :relationship "P" :institutional-popn 8157.0}
-                                      {:gss-code "001" :age-group :80-84 :sex "F"
-                                       :year 2015 :relationship "P" :institutional-popn 11974.0}
-                                      {:gss-code "001" :age-group :85+ :sex "F"
-                                       :year 2015 :relationship "P" :institutional-popn 15049.666666667}]
+  :witan-institutional-popn-with-75+ [{:gss-code "001" :age-group :60_64 :sex "F"
+                                       :year 2015 :relationship "P"
+                                       :institutional-popn 1500.0}
+                                      {:gss-code "001" :age-group :65_69 :sex "F"
+                                       :year 2015 :relationship "P"
+                                       :institutional-popn 3000.0}
+                                      {:gss-code "001" :age-group :70_74 :sex "F"
+                                       :year 2015 :relationship "P"
+                                       :institutional-popn 5000.0}
+                                      {:gss-code "001" :age-group :75_79 :sex "F"
+                                       :year 2015 :relationship "P"
+                                       :institutional-popn 8157.0}
+                                      {:gss-code "001" :age-group :80_84 :sex "F"
+                                       :year 2015 :relationship "P"
+                                       :institutional-popn 11974.0}
+                                      {:gss-code "001" :age-group :85& :sex "F"
+                                       :year 2015 :relationship "P"
+                                       :institutional-popn 15049.666666667}]
 
-  :household-popn [{:gss-code "001" :age-group :30-34 :sex "F"
+  :household-popn [{:gss-code "001" :age-group :30_34 :sex "F"
                     :year 2015  :relationship "S" :household-popn 5606.060606061}
-                   {:gss-code "001" :age-group :35-39 :sex "F"
+                   {:gss-code "001" :age-group :35_39 :sex "F"
                     :year 2015  :relationship "S" :household-popn 5294.117647059}
-                   {:gss-code "001" :age-group :30-34 :sex "M"
+                   {:gss-code "001" :age-group :30_34 :sex "M"
                     :year 2015  :relationship "S" :household-popn 5757.575757576}
-                   {:gss-code "001" :age-group :35-39 :sex "M"
+                   {:gss-code "001" :age-group :35_39 :sex "M"
                     :year 2015  :relationship "S" :household-popn 5070.72135785}
-                   {:gss-code "001" :age-group :30-34 :sex "F"
+                   {:gss-code "001" :age-group :30_34 :sex "F"
                     :year 2015  :relationship "C" :household-popn 4393.939393939}
-                   {:gss-code "001" :age-group :35-39 :sex "F"
+                   {:gss-code "001" :age-group :35_39 :sex "F"
                     :year 2015  :relationship "C" :household-popn 4705.882352941}
-                   {:gss-code "001" :age-group :30-34 :sex "M"
+                   {:gss-code "001" :age-group :30_34 :sex "M"
                     :year 2015  :relationship "C" :household-popn 4242.424242424}
-                   {:gss-code "001" :age-group :35-39 :sex "M"
+                   {:gss-code "001" :age-group :35_39 :sex "M"
                     :year 2015  :relationship "C" :household-popn 4929.27864215}]
 
   :households [{:gss-code "001" :year 2015 :sex "F" :relationship "S"
-                :age-group :30-34  :households 2242.424242424}
+                :age-group :30_34  :households 2242.424242424}
                {:gss-code "001" :year 2015 :sex "F" :relationship "S"
-                :age-group :35-39 :households 1588.235294118}
+                :age-group :35_39 :households 1588.235294118}
                {:gss-code "001" :year 2015 :sex "M" :relationship "S"
-                :age-group :30-34 :households 2303.03030303}
+                :age-group :30_34 :households 2303.03030303}
                {:gss-code "001" :year 2015 :sex "M" :relationship "S"
-                :age-group :35-39 :households 1521.216407355}
+                :age-group :35_39 :households 1521.216407355}
                {:gss-code "001" :year 2015 :sex "F" :relationship "C"
-                :age-group :30-34  :households 1757.575757576}
+                :age-group :30_34  :households 1757.575757576}
                {:gss-code "001" :year 2015 :sex "F" :relationship "C"
-                :age-group :35-39 :households 1411.764705882}
+                :age-group :35_39 :households 1411.764705882}
                {:gss-code "001" :year 2015 :sex "M" :relationship "C"
-                :age-group :30-34 :households 1696.96969697}
+                :age-group :30_34 :households 1696.96969697}
                {:gss-code "001" :year 2015 :sex "M" :relationship "C"
-                :age-group :35-39 :households 1478.783592645}]
+                :age-group :35_39 :households 1478.783592645}]
 
   :total-households [{:gss-code "001" :year 2015 :households 14000.0}]
 

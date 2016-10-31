@@ -1,0 +1,13 @@
+{:population "data/test_datasets/gla_test_popn_barnet.csv"
+
+ :dclg-household-popn "data/test_datasets/dclg_hh_popn_barnet.csv"
+
+ :dclg-institutional-popn "data/test_datasets/dclg_inst_popn_barnet.csv"
+
+ :dclg-household-representative-rates "data/test_datasets/dclg_hh_repr_rates_barnet.csv"
+
+ :dclg-dwellings "data/test_datasets/dclg_dwellings_barnet.csv"
+
+ :vacancy-dwellings "data/test_datasets/dclg_vacant_dwellings_barnet.csv"
+
+ :gla-total-households "data/test_datasets/gla_test_totalhh_barnet.csv"}
