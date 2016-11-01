@@ -66,8 +66,8 @@
 
 (defmethod apply-record-coercion :dclg-household-popn
   [data-info csv-data]
-  {:column-names (apply-col-names-schema HouseholdPopulation csv-data)
-   :columns (vec (apply-row-schema HouseholdPopulation csv-data))})
+  {:column-names (apply-col-names-schema DclgHouseholdPopulation csv-data)
+   :columns (vec (apply-row-schema DclgHouseholdPopulation csv-data))})
 
 (defmethod apply-record-coercion :dclg-institutional-popn
   [data-info csv-data]

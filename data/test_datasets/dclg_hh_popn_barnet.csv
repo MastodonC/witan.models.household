@@ -1,4 +1,4 @@
-gss-code,age-group,sex,year,relationship,household-popn
+gss-code,age-group,sex,year,relationship,dclg-household-popn
 E09000003,0_4,F,2011,C,0
 E09000003,10_14,F,2011,C,0
 E09000003,15_19,F,2011,C,93

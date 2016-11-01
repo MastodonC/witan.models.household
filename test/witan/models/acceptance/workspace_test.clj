@@ -6,6 +6,7 @@
             [witan.workspace-api.protocols :as p]
             [witan.workspace-executor.core :as wex]
             [clojure.core.matrix.dataset :as ds]
+            [clojure.data.csv :as data-csv]
             [witan.datasets :as wds]
             [clojure.java.io :as io]
             [clojure.edn :as edn]
@@ -14,6 +15,27 @@
 ;; Testing the model can be run by the workspace executor
 
 ;; Helpers
+;; (defn- load-csv
+;;   "Loads csv file with each row as a vector.
+;;    Stored in map separating column-names from data"
+;;   ([filename]
+;;    (let [file (io/file filename)]
+;;      (when (.exists (io/as-file file))
+;;        (let [parsed-csv (data-csv/read-csv (slurp file))
+;;              parsed-data (rest parsed-csv)
+;;              headers (first parsed-csv)]
+;;          {:column-names headers
+;;           :columns (vec parsed-data)})))))
+
+;; (defn csv-to-dataset
+;;   "Takes in a file path and a schema. Creates a dataset with the file
+;;    data after coercing it using the schema."
+;;   [filepath schema]
+;;   (-> (load-csv filepath)
+;;       :columns
+;;       (map (coerce/coercer (make-row-schema col-schema)
+;;                            coerce/string-coercion-matcher))))
+
 (def test-data
   (edn/read-string
    (slurp (io/file "data/testing_config.edn"))))

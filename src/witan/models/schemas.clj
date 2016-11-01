@@ -33,6 +33,12 @@
                            [:year s/Int] [:relationship s/Str]
                            [:household-popn java.lang.Double]]))
 
+(def DclgHouseholdPopulation
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword]
+                           [:sex (s/enum "F" "M")]
+                           [:year s/Int] [:relationship s/Str]
+                           [:dclg-household-popn java.lang.Double]]))
+
 (def InstitutionalPopulation
   (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword]
                            [:sex (s/enum "F" "M")]

@@ -19,7 +19,7 @@
   {:witan/name :hh-model/dclg-household-popn
    :witan/version "1.0.0"
    :witan/key :dclg-household-popn
-   :witan/schema sc/HouseholdPopulation})
+   :witan/schema sc/DclgHouseholdPopulation})
 
 (definput dclg-institutional-popn-1-0-0
   {:witan/name :hh-model/dclg-institutional-popn
@@ -65,7 +65,7 @@
       (wds/join dclg-inst-popn
                 [:gss-code :age-group :sex :year :relationship])
       (wds/add-derived-column :dclg-resident-popn
-                              [:dclg-institutional-popn :household-popn] +)
+                              [:dclg-institutional-popn :dclg-household-popn] +)
       (ds/select-columns [:gss-code :age-group :sex :year :relationship :dclg-resident-popn])))
 
 (defn sum-resident-popn
@@ -103,7 +103,7 @@
   {:witan/name :hh-model/apportion-popn-by-relationship
    :witan/version "1.0.0"
    :witan/input-schema {:population sc/PopulationProjections
-                        :dclg-household-popn sc/HouseholdPopulation
+                        :dclg-household-popn sc/DclgHouseholdPopulation
                         :dclg-institutional-popn sc/DclgInstitutionalPopulation}
    :witan/output-schema {:resident-popn sc/ResidentPopulation
                          :dclg-resident-popn sc/DclgResidentPopulation}}

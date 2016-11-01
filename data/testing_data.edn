@@ -22,21 +22,21 @@
                {:gss-code "001" :age 39 :sex "M" :year 2015 :population 4000.0}]
 
   :dclg-household-popn  [{:gss-code "001" :age-group :30_34 :sex "F"
-                          :year 2015 :relationship "S" :household-popn 30000.0}
+                          :year 2015 :relationship "S" :dclg-household-popn 30000.0}
                          {:gss-code "001" :age-group :35_39 :sex "F"
-                          :year 2015 :relationship "S" :household-popn 30000.0}
+                          :year 2015 :relationship "S" :dclg-household-popn 30000.0}
                          {:gss-code "001" :age-group :30_34 :sex "M"
-                          :year 2015 :relationship "S" :household-popn 30500.0}
+                          :year 2015 :relationship "S" :dclg-household-popn 30500.0}
                          {:gss-code "001" :age-group :35_39 :sex "M"
-                          :year 2015 :relationship "S" :household-popn 30600.0}
+                          :year 2015 :relationship "S" :dclg-household-popn 30600.0}
                          {:gss-code "001" :age-group :30_34 :sex "F"
-                          :year 2015 :relationship "C" :household-popn 26000.0}
+                          :year 2015 :relationship "C" :dclg-household-popn 26000.0}
                          {:gss-code "001" :age-group :35_39 :sex "F"
-                          :year 2015 :relationship "C" :household-popn 28000.0}
+                          :year 2015 :relationship "C" :dclg-household-popn 28000.0}
                          {:gss-code "001" :age-group :30_34 :sex "M"
-                          :year 2015 :relationship "C" :household-popn 25500.0}
+                          :year 2015 :relationship "C" :dclg-household-popn 25500.0}
                          {:gss-code "001" :age-group :35_39 :sex "M"
-                          :year 2015 :relationship "C" :household-popn 30100.0}]
+                          :year 2015 :relationship "C" :dclg-household-popn 30100.0}]
 
   :dclg-institutional-popn [{:gss-code "001" :age-group :30_34 :sex "F"
                              :year 2015 :relationship "S"
