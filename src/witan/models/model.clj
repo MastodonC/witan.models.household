@@ -25,6 +25,10 @@
    [:calc-households :output-total-households]
    [:convert-to-dwellings :output-dwellings]])
 
+(defn with-gss
+  [id]
+  (str id "_{{GSS-Code}}.csv.gz"))
+
 (def hh-model-catalog
   "Provides metadata for each step of the household model"
   [ ;; Input functions
@@ -32,32 +36,32 @@
     :witan/version "1.0.0"
     :witan/type :input
     :witan/fn :hh-model/population
-    :witan/params {:src ""}}
+    :witan/params {:src (with-gss "witan.models.household/population")}}
    {:witan/name :dclg-household-popn
     :witan/version "1.0.0"
     :witan/type :input
     :witan/fn :hh-model/dclg-household-popn
-    :witan/params {:src ""}}
+    :witan/params {:src (with-gss "witan.models.household/household_population")}}
    {:witan/name :dclg-institutional-popn
     :witan/version "1.0.0"
     :witan/type :input
     :witan/fn :hh-model/dclg-institutional-popn
-    :witan/params {:src ""}}
+    :witan/params {:src (with-gss "witan.models.household/institutional_population")}}
    {:witan/name :dclg-household-representative-rates
     :witan/version "1.0.0"
     :witan/type :input
     :witan/fn :hh-model/dclg-household-representative-rates
-    :witan/params {:src ""}}
+    :witan/params {:src (with-gss "witan.models.household/household_representative_rates")}}
    {:witan/name :dclg-dwellings
     :witan/version "1.0.0"
     :witan/type :input
     :witan/fn :hh-model/dclg-dwellings
-    :witan/params {:src ""}}
+    :witan/params {:src (with-gss "witan.models.household/dwellings")}}
    {:witan/name :vacancy-dwellings
     :witan/version "1.0.0"
     :witan/type :input
     :witan/fn :hh-model/vacancy-dwellings
-    :witan/params {:src ""}}
+    :witan/params {:src (with-gss "witan.models.household/vacancy_dwellings")}}
    ;; Calculation functions
    {:witan/name :apportion-popn-by-relationship
     :witan/version "1.0.0"

@@ -9,4 +9,9 @@
                  [prismatic/schema "1.1.3"]
                  [org.clojure/data.csv "0.1.3"]]
   :profiles {:dev {:dependencies [[witan.workspace-executor "0.2.6"
-                                    :exclusions [witan.workspace-api]]]}})
+                                    :exclusions [witan.workspace-api]]]}
+             :data {:source-paths ["src-data"]
+                    :dependencies [[amazonica "0.3.73"]
+                                   [me.raynes/fs "1.4.6"]]}}
+  :aliases {"split-data"  ["with-profile" "data" "run" "-m" "witan.models.split-data"]
+            "upload-data" ["with-profile" "data" "run" "-m" "witan.models.upload-data"]})
