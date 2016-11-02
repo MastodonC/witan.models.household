@@ -28,32 +28,45 @@
                            [:year s/Int] [:population java.lang.Double]]))
 
 (def HouseholdPopulation
-  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword] [:sex (s/enum "F" "M")]
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword]
+                           [:sex (s/enum "F" "M")]
                            [:year s/Int] [:relationship s/Str]
                            [:household-popn java.lang.Double]]))
 
+(def DclgHouseholdPopulation
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword]
+                           [:sex (s/enum "F" "M")]
+                           [:year s/Int] [:relationship s/Str]
+                           [:dclg-household-popn java.lang.Double]]))
+
 (def InstitutionalPopulation
-  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword] [:sex (s/enum "F" "M")]
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword]
+                           [:sex (s/enum "F" "M")]
                            [:year s/Int] [:relationship s/Str]
                            [:institutional-popn java.lang.Double]]))
 
 (def DclgInstitutionalPopulation
-  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword] [:sex (s/enum "F" "M")]
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword]
+                           [:sex (s/enum "F" "M")]
                            [:year s/Int] [:relationship s/Str]
                            [:dclg-institutional-popn java.lang.Double]]))
 
 (def ResidentPopulation
-  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword] [:sex (s/enum "F" "M")]
-                           [:year s/Int] [:relationship s/Str] [:resident-popn java.lang.Double]]))
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword]
+                           [:sex (s/enum "F" "M")]
+                           [:year s/Int] [:relationship s/Str]
+                           [:resident-popn java.lang.Double]]))
 
 (def DclgResidentPopulation
-  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword] [:sex (s/enum "F" "M")]
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword]
+                           [:sex (s/enum "F" "M")]
                            [:year s/Int] [:relationship s/Str]
                            [:dclg-resident-popn java.lang.Double]]))
 
 (def HouseholdRepresentativeRates
-  (make-ordered-ds-schema [[:gss-code s/Str] [:year s/Int] [:sex (s/enum "F" "M")]
-                           [:relationship s/Str] [:age-group s/Keyword]
+  (make-ordered-ds-schema [[:gss-code s/Str] [:age-group s/Keyword]
+                           [:sex (s/enum "F" "M")] [:year s/Int]
+                           [:relationship s/Str]
                            [:hh-repr-rates java.lang.Double]]))
 
 (def VacancyDwellings

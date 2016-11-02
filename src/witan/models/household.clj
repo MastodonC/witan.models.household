@@ -19,7 +19,7 @@
   {:witan/name :hh-model/dclg-household-popn
    :witan/version "1.0.0"
    :witan/key :dclg-household-popn
-   :witan/schema sc/HouseholdPopulation})
+   :witan/schema sc/DclgHouseholdPopulation})
 
 (definput dclg-institutional-popn-1-0-0
   {:witan/name :hh-model/dclg-institutional-popn
@@ -65,7 +65,7 @@
       (wds/join dclg-inst-popn
                 [:gss-code :age-group :sex :year :relationship])
       (wds/add-derived-column :dclg-resident-popn
-                              [:dclg-institutional-popn :household-popn] +)
+                              [:dclg-institutional-popn :dclg-household-popn] +)
       (ds/select-columns [:gss-code :age-group :sex :year :relationship :dclg-resident-popn])))
 
 (defn sum-resident-popn
@@ -78,8 +78,8 @@
       (ds/rename-columns {:dclg-resident-popn :resident-popn-summed})))
 
 (defn calc-resident-proj
-  "Takes in the resident population and banded population
-   projections. Returns the resident population projections."
+  "Takes in the dclg resident population, dclg resident population summed by relationship
+   and banded population projections. Returns the resident population projections."
   [resident-popn resident-popn-summed banded-projections]
   (let [joined-resident-popn (wds/join banded-projections resident-popn
                                        [:gss-code :year :sex :age-group])
@@ -103,16 +103,17 @@
   {:witan/name :hh-model/apportion-popn-by-relationship
    :witan/version "1.0.0"
    :witan/input-schema {:population sc/PopulationProjections
-                        :dclg-household-popn sc/HouseholdPopulation
+                        :dclg-household-popn sc/DclgHouseholdPopulation
                         :dclg-institutional-popn sc/DclgInstitutionalPopulation}
    :witan/output-schema {:resident-popn sc/ResidentPopulation
                          :dclg-resident-popn sc/DclgResidentPopulation}}
   [{:keys [population dclg-household-popn dclg-institutional-popn]} _]
   (let [popn-by-age-bands (grp-popn-proj population)
-        dclg-resident-popn (create-resident-popn dclg-household-popn dclg-institutional-popn)
-        dclg-resident-by-relationship (sum-resident-popn dclg-resident-popn)]
+        dclg-resident-popn (create-resident-popn dclg-household-popn
+                                                 dclg-institutional-popn)
+        dclg-resident-summed (sum-resident-popn dclg-resident-popn)]
     {:resident-popn (calc-resident-proj dclg-resident-popn
-                                        dclg-resident-by-relationship
+                                        dclg-resident-summed
                                         popn-by-age-bands)
      :dclg-resident-popn dclg-resident-popn}))
 
@@ -137,7 +138,7 @@
                                                     :dclg-institutional-popn]
                                                    (fn [age res dres dinst]
                                                      (if (some #(= age %)
-                                                               [:75-79 :80-84 :85+])
+                                                               [:75_79 :80_84 :85&])
                                                        (* (/ dinst dres) res) dinst)))
                            (ds/select-columns [:gss-code :age-group :sex :year
                                                :relationship :institutional-popn]))})
@@ -190,7 +191,10 @@
    :witan/param-schema {:second-home-rate java.lang.Double}
    :witan/output-schema {:dwellings sc/Dwellings}}
   [{:keys [total-households dclg-dwellings vacancy-dwellings]} {:keys [second-home-rate]}]
-  (let [vacant-dwellings (wds/subset-ds vacancy-dwellings :cols :vacancy-dwellings)
+  (let [vacant-dwellings (wds/subset-ds (wds/select-from-ds vacancy-dwellings
+                                                            {:year {:eq (u/get-last-year
+                                                                         vacancy-dwellings)}})
+                                        :cols :vacancy-dwellings)
         last-year-dwellings (wds/subset-ds (wds/select-from-ds dclg-dwellings
                                                                {:year {:eq (u/get-last-year
                                                                             dclg-dwellings)}})
