@@ -10,8 +10,7 @@
             [clojure.data.csv :as data-csv]
             [schema.coerce :as coerce]
             [witan.datasets :as wds]
-            [clojure.java.io :as io]
-            [clojure.edn :as edn]))
+            [clojure.java.io :as io]))
 
 ;; Testing the model can be run by the workspace executor
 
