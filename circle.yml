@@ -1,0 +1,11 @@
+## Setting memory limits for the JVM
+
+machine:
+  environment:
+    _JAVA_OPTIONS: "-Xms512m -Xmx1024m"
+
+test:
+  override:
+    - lein split-data
+    - lein test
+    - lein uberjar

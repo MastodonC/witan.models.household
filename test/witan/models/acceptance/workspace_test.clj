@@ -71,7 +71,41 @@
   [input]
   (assoc-in input [:witan/params :fn] (partial read-inputs input)))
 
+(def gss-code "E09000003")
+
+(defn with-gss
+  [id]
+  (str id "_" gss-code ".csv"))
+
+(def local-inputs
+  { :population [(with-gss "./data/default_datasets/population/witan_popn_proj")
+                 sc/PopulationProjections]
+   :dclg-household-popn
+   [(with-gss "./data/default_datasets/household_population/dclg_2014_hh_popn_proj")
+    sc/DclgHouseholdPopulation]
+   :dclg-institutional-popn
+   [(with-gss "./data/default_datasets/institutional_population/dclg_2014_inst_popn_proj")
+    sc/DclgInstitutionalPopulation]
+   :dclg-household-representative-rates
+   [(with-gss "./data/default_datasets/household_representative_rates/dclg_2014_hh_repr_rates")
+    sc/HouseholdRepresentativeRates]
+   :dclg-dwellings [(with-gss "./data/default_datasets/dwellings/dclg_2015_dwellings")
+                    sc/Dwellings]
+   :vacancy-dwellings
+   [(with-gss "./data/default_datasets/vacancy_dwellings/dclg_2015_vacant_dwellings")
+    sc/VacancyDwellings]})
+
+(defn read-local-inputs [input _ schema]
+  (let [[filepath fileschema] (get local-inputs (:witan/name input))]
+    (csv-to-dataset filepath fileschema)))
+
+(defn add-params-to-local-input
+  [input]
+  (assoc-in input [:witan/params :fn] (partial read-local-inputs input)))
+
 (defn- fp-equals? [x y ε] (< (Math/abs (- x y)) ε))
+
+
 
 ;; Test
 (deftest household-workspace-test
@@ -100,7 +134,7 @@
                                              [:households
                                               :gla-households] -)]
 
-      (println difference)
+      ;; (println difference)
 
       (is (:households result))
       (is (:dwellings result))
@@ -111,4 +145,19 @@
       (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :households)
                                (wds/subset-ds joined-ds :rows % :cols :gla-households)
                                300)
-                  (range (first (:shape joined-ds))))))))
+                  (range (first (:shape joined-ds)))))))
+
+  (testing "The model is run using the split data"
+    (let [fixed-catalog (mapv #(if (= (:witan/type %) :input)
+                                 (add-params-to-local-input %) %)
+                              (:catalog m/household-model))
+          workspace     {:workflow  (:workflow m/household-model)
+                         :catalog   fixed-catalog
+                         :contracts (p/available-fns (m/model-library))}
+          workspace'    (s/with-fn-validation (wex/build! workspace))
+          result        (apply merge (wex/run!! workspace' {}))]
+
+      (is result)
+      (is (:households result))
+      (is (:total-households result))
+      (is (:dwellings result)))))
