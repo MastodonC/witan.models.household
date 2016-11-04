@@ -30,6 +30,12 @@
   [dataset]
   (contains? (set (:column-names dataset)) :year))
 
+(defn get-first-year
+  [dataset]
+  (utils/property-holds?  dataset year-column-exists?
+                          (str "Dataset must have a year column"))
+  (reduce min (ds/column dataset :year)))
+
 (defn get-last-year
   [dataset]
   (utils/property-holds?  dataset year-column-exists?

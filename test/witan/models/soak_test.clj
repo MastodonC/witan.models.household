@@ -55,7 +55,7 @@
 
 (defn local-inputs
   [gss-code]
-  { :population [(with-gss "./data/default_datasets/population/witan_popn_proj" gss-code)
+  { :population [(with-gss "./data/default_datasets/population/ons_2014_based_snpp" gss-code)
                  sc/PopulationProjections]
    :dclg-household-popn
    [(with-gss "./data/default_datasets/household_population/dclg_2014_hh_popn_proj" gss-code)

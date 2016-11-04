@@ -83,7 +83,10 @@
   [resident-popn resident-popn-summed banded-projections]
   (let [joined-resident-popn (wds/join banded-projections resident-popn
                                        [:gss-code :year :sex :age-group])
-        joined-summed-popn (wds/join resident-popn-summed joined-resident-popn
+        joined-resident-popn-proj (wds/select-from-ds joined-resident-popn
+                                                      {:year {:gte (u/get-first-year
+                                                                    banded-projections)}})
+        joined-summed-popn (wds/join resident-popn-summed joined-resident-popn-proj
                                      [:gss-code :year :sex :age-group])]
     (-> joined-summed-popn
         (wds/add-derived-column :resident-popn
@@ -111,10 +114,11 @@
   (let [popn-by-age-bands (grp-popn-proj population)
         dclg-resident-popn (create-resident-popn dclg-household-popn
                                                  dclg-institutional-popn)
-        dclg-resident-summed (sum-resident-popn dclg-resident-popn)]
-    {:resident-popn (calc-resident-proj dclg-resident-popn
-                                        dclg-resident-summed
-                                        popn-by-age-bands)
+        dclg-resident-summed (sum-resident-popn dclg-resident-popn)
+        resident-popn (calc-resident-proj dclg-resident-popn
+                                          dclg-resident-summed
+                                          popn-by-age-bands)]
+    {:resident-popn resident-popn
      :dclg-resident-popn dclg-resident-popn}))
 
 (defworkflowfn calc-institutional-popn-1-0-0

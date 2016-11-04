@@ -77,7 +77,7 @@
   (str id "_" gss-code ".csv"))
 
 (def local-inputs
-  { :population [(with-gss "./data/default_datasets/population/witan_popn_proj")
+  { :population [(with-gss "./data/default_datasets/population/ons_2014_based_snpp")
                  sc/PopulationProjections]
    :dclg-household-popn
    [(with-gss "./data/default_datasets/household_population/dclg_2014_hh_popn_proj")
