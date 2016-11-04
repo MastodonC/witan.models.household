@@ -147,6 +147,7 @@
                   (range (first (:shape joined-ds)))))))
 
   (testing "The model is run using the split data"
+    ;; You must have run `lein split-data` on the command-line before
     (let [fixed-catalog (mapv #(if (= (:witan/type %) :input)
                                  (add-params-to-local-input %) %)
                               (:catalog m/household-model))

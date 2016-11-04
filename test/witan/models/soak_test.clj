@@ -81,23 +81,21 @@
   [input gss-code]
   (assoc-in input [:witan/params :fn] (partial read-local-inputs gss-code input)))
 
-
-(defn run-workspace [gss-code]
-  (println "Running the household model for" gss-code)
-  (time (let [fixed-catalog (mapv #(if (= (:witan/type %) :input)
-                                     (add-params-to-local-input % gss-code) %)
-                                  (:catalog m/household-model))
-              workspace     {:workflow  (:workflow m/household-model)
-                             :catalog   fixed-catalog
-                             :contracts (p/available-fns (m/model-library))}
-              workspace'    (s/with-fn-validation (wex/build! workspace))]
-          {(keyword gss-code) (apply merge (wex/run!! workspace' {}))})))
-
 (def english-local-authorities
   (edn/read-string
    (slurp (io/file "data/english_local_authorities.edn"))))
 
-(defn- fp-equals? [x y ε] (< (Math/abs (- x y)) ε))
+(defn run-workspace [gss-code]
+  (println "Running the household model for" gss-code
+           (get english-local-authorities (keyword gss-code)))
+  (let [fixed-catalog (mapv #(if (= (:witan/type %) :input)
+                               (add-params-to-local-input % gss-code) %)
+                            (:catalog m/household-model))
+        workspace     {:workflow  (:workflow m/household-model)
+                       :catalog   fixed-catalog
+                       :contracts (p/available-fns (m/model-library))}
+        workspace'    (s/with-fn-validation (wex/build! workspace))]
+    {(keyword gss-code) (apply merge (wex/run!! workspace' {}))}))
 
 (defn spot-negative [[gss-code result]]
   (when (some neg? (-> result
@@ -105,14 +103,16 @@
                        (wds/subset-ds :cols :households)))
     (println (name gss-code) (get english-local-authorities gss-code))))
 
-(deftest all-local-authorities-test
+;; The following test runs on all English local authorities in over 18 minutes
+;; You must have run `lein split-data` on the command-line before
+
+#_(deftest all-local-authorities-test
   (testing "The outputs for all English local authorities are sensible"
-    (let [results (reduce merge (map
-                                 #(run-workspace (name %))
-                                 [:E09000003 :E09000003]
-                                 ;;(take 2 (keys english-local-authorities))
-                                 ))
+    (let [results (time (reduce merge (map
+                                       #(run-workspace (name %))
+                                       (keys english-local-authorities))))
           _ (map spot-negative results)
+
 
           all-dwellings (mapcat #(-> %
                                      :dwellings
@@ -126,8 +126,7 @@
                                             :total-households
                                             (wds/subset-ds :cols :households))
                                        (vals results))]
-      ;; (is (= 326 (count results)))
-
-      (is (every? #(> % 0.0) all-dwellings))
+      (is (= 326 (count results)))
+      (is (every? pos? all-dwellings))
       (is (every? #(>= % 0.0) all-households))
-      (is (every? #(> % 0.0) all-total-households)))))
+      (is (every? pos? all-total-households)))))
