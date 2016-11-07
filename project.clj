@@ -7,7 +7,8 @@
                  [net.mikera/core.matrix "0.55.0"]
                  [witan.workspace-api "0.1.20"]
                  [prismatic/schema "1.1.3"]
-                 [org.clojure/data.csv "0.1.3"]]
+                 [org.clojure/data.csv "0.1.3"]
+                 [environ "1.0.1"]]
   :profiles {:dev {:dependencies [[witan.workspace-executor "0.2.6"
                                     :exclusions [witan.workspace-api]]]}
              :data {:source-paths ["src-data"]

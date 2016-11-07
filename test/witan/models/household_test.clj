@@ -1,5 +1,6 @@
 (ns witan.models.household-test
   (:require [clojure.test :refer :all]
+            [witan.models.test-utils :as tu]
             [witan.models.household :refer :all]
             [clojure.core.matrix.dataset :as ds]
             [witan.datasets :as wds]
@@ -24,7 +25,6 @@
         data-set (ds/dataset data)]
     data-set))
 
-(defn- fp-equals? [x y ε] (< (Math/abs (- x y)) ε))
 
 ;; Tests
 (deftest grp-popn-proj-test
@@ -67,7 +67,7 @@
                               [:gss-code :year :sex :relationship :age-group])]
       (is (= (:shape witan-res-popn) (:shape correct-output)))
       (is (= (:column-names witan-res-popn) (:column-names correct-output)))
-      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :resident-popn)
+      (is (every? #(tu/fp-equals? (wds/subset-ds joined-ds :rows % :cols :resident-popn)
                                (wds/subset-ds joined-ds :rows % :cols :resident-popn-test)
                                0.000001)
                   (range (first (:shape joined-ds))))))))
@@ -88,9 +88,9 @@
                               [:gss-code :year :sex :relationship :age-group])]
       (is (= (:shape witan-res-popn) (:shape correct-output)))
       (is (= (:column-names witan-res-popn) (:column-names correct-output)))
-      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :resident-popn)
-                               (wds/subset-ds joined-ds :rows % :cols :resident-popn-test)
-                               0.000001)
+      (is (every? #(tu/fp-equals? (wds/subset-ds joined-ds :rows % :cols :resident-popn)
+                                  (wds/subset-ds joined-ds :rows % :cols :resident-popn-test)
+                                  0.000001)
                   (range (first (:shape joined-ds))))))))
 
 (deftest calc-institutional-popn-test
@@ -111,7 +111,7 @@
                               [:gss-code :year :sex :relationship :age-group])]
       (is (= (:shape witan-inst-popn) (:shape correct-output)))
       (is (= (:column-names witan-inst-popn) (:column-names correct-output)))
-      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols
+      (is (every? #(tu/fp-equals? (wds/subset-ds joined-ds :rows % :cols
                                               :institutional-popn)
                                (wds/subset-ds joined-ds :rows % :cols
                                               :institutional-popn-test)
@@ -134,7 +134,7 @@
                               [:gss-code :year :sex :relationship :age-group])]
       (is (= (:shape witan-inst-popn) (:shape correct-output)))
       (is (= (:column-names witan-inst-popn) (:column-names correct-output)))
-      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols
+      (is (every? #(tu/fp-equals? (wds/subset-ds joined-ds :rows % :cols
                                               :institutional-popn)
                                (wds/subset-ds joined-ds :rows % :cols
                                               :institutional-popn-test)
@@ -155,7 +155,7 @@
                               [:gss-code :year :sex :relationship :age-group])]
       (is (= (:shape household-popn) (:shape correct-output)))
       (is (= (:column-names household-popn) (:column-names correct-output)))
-      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :household-popn)
+      (is (every? #(tu/fp-equals? (wds/subset-ds joined-ds :rows % :cols :household-popn)
                                (wds/subset-ds joined-ds :rows % :cols
                                               :household-popn-test)
                                0.000001)
@@ -180,21 +180,21 @@
           joined-total-hh-ds (wds/join total-hh-ds
                                        (ds/rename-columns correct-total-hh
                                                           {:households :test-households})
-                                 [:gss-code :year])]
+                                       [:gss-code :year])]
       (is (= (:shape hh-ds) (:shape correct-hh)))
       (is (= (:shape total-hh-ds) (:shape correct-total-hh)))
       (is (= (:column-names hh-ds) (:column-names correct-hh)))
       (is (= (:column-names total-hh-ds) (:column-names correct-total-hh)))
-      (is (every? #(fp-equals? (wds/subset-ds joined-hh-ds :rows % :cols :households)
-                               (wds/subset-ds joined-hh-ds :rows % :cols
-                                              :test-households)
-                               0.00001)
+      (is (every? #(tu/fp-equals? (wds/subset-ds joined-hh-ds :rows % :cols :households)
+                                  (wds/subset-ds joined-hh-ds :rows % :cols
+                                                 :test-households)
+                                  0.00001)
                   (range (first (:shape joined-hh-ds)))))
-      (is (every? #(fp-equals? (wds/subset-ds joined-total-hh-ds :rows % :cols
-                                              :households)
-                               (wds/subset-ds joined-total-hh-ds :rows % :cols
-                                              :test-households)
-                               0.00001)
+      (is (every? #(tu/fp-equals? (wds/subset-ds joined-total-hh-ds :rows % :cols
+                                                 :households)
+                                  (wds/subset-ds joined-total-hh-ds :rows % :cols
+                                                 :test-households)
+                                  0.00001)
                   (range (first (:shape joined-total-hh-ds))))))))
 
 (deftest convert-to-dwellings-test
@@ -217,9 +217,9 @@
                               [:gss-code :year])]
       (is (= (:shape dwellings-ds) (:shape correct-output)))
       (is (= (:column-names dwellings-ds) (:column-names correct-output)))
-      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :dwellings)
-                               (wds/subset-ds joined-ds :rows % :cols :test-dwellings)
-                               0.00001)
+      (is (every? #(tu/fp-equals? (wds/subset-ds joined-ds :rows % :cols :dwellings)
+                                  (wds/subset-ds joined-ds :rows % :cols :test-dwellings)
+                                  0.00001)
                   (range (first (:shape joined-ds)))))))
   (testing "The number of dwellings is calculated from the first year of projections
              onwards"
@@ -241,7 +241,7 @@
                               [:gss-code :year])]
       (is (= (:shape dwellings-ds) (:shape correct-output)))
       (is (= (:column-names dwellings-ds) (:column-names correct-output)))
-      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :dwellings)
-                               (wds/subset-ds joined-ds :rows % :cols :test-dwellings)
-                               0.00001)
+      (is (every? #(tu/fp-equals? (wds/subset-ds joined-ds :rows % :cols :dwellings)
+                                  (wds/subset-ds joined-ds :rows % :cols :test-dwellings)
+                                  0.00001)
                   (range (first (:shape joined-ds))))))))

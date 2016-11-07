@@ -6,48 +6,13 @@
              [witan.models.model :as m]
              [witan.workspace-api.protocols :as p]
              [witan.workspace-executor.core :as wex]
-             [clojure.core.matrix.dataset :as ds]
-             [clojure.data.csv :as data-csv]
-             [schema.coerce :as coerce]
              [witan.datasets :as wds]
              [clojure.java.io :as io]
-             [clojure.edn :as edn]))
+             [clojure.edn :as edn]
+             [witan.models.test-utils :as tu]
+             [environ.core :refer [env]]))
 
-(defn- load-csv
-  "Loads csv file with each row as a vector.
-   Stored in map separating column-names from data"
-  ([filename]
-   (let [file (io/file filename)]
-     (when (.exists (io/as-file file))
-       (let [parsed-csv (data-csv/read-csv (slurp file))
-             parsed-data (rest parsed-csv)
-             headers (first parsed-csv)]
-         {:column-names headers
-          :columns (vec parsed-data)})))))
-
-(defn apply-row-schema
-  [col-schema csv-data]
-  (let [row-schema (sc/make-row-schema col-schema)]
-    (map (coerce/coercer row-schema coerce/string-coercion-matcher)
-         (:columns csv-data))))
-
-(defn apply-col-names-schema
-  [col-schema csv-data]
-  (let [col-names-schema (sc/make-col-names-schema col-schema)]
-    ((coerce/coercer col-names-schema coerce/string-coercion-matcher)
-     (:column-names csv-data))))
-
-(defn apply-schema-coercion [data schema]
-  {:column-names (apply-col-names-schema schema data)
-   :columns (vec (apply-row-schema schema data))})
-
-(defn csv-to-dataset
-  "Takes in a file path and a schema. Creates a dataset with the file
-   data after coercing it using the schema."
-  [filepath schema]
-  (-> (load-csv filepath)
-      (apply-schema-coercion schema)
-      (as-> {:keys [column-names columns]} (ds/dataset column-names columns))))
+;; Test the model can run in the workspace for all English local authorities
 
 (defn with-gss
   [id gss-code]
@@ -75,7 +40,7 @@
 
 (defn read-local-inputs [gss-code input _ schema]
   (let [[filepath fileschema] (get (local-inputs gss-code) (:witan/name input))]
-    (csv-to-dataset filepath fileschema)))
+    (tu/csv-to-dataset filepath fileschema)))
 
 (defn add-params-to-local-input
   [input gss-code]
@@ -106,27 +71,28 @@
 ;; The following test runs on all English local authorities in over 18 minutes
 ;; You must have run `lein split-data` on the command-line before
 
-#_(deftest all-local-authorities-test
-  (testing "The outputs for all English local authorities are sensible"
-    (let [results (time (reduce merge (map
-                                       #(run-workspace (name %))
-                                       (keys english-local-authorities))))
-          _ (map spot-negative results)
+(when (= (:run-soak-test env) "yes")
+  (deftest all-local-authorities-test
+    (testing "The outputs for all English local authorities are sensible"
+      (let [results (time (reduce merge (map
+                                         #(run-workspace (name %))
+                                         (keys english-local-authorities))))
+            _ (map spot-negative results)
 
 
-          all-dwellings (mapcat #(-> %
-                                     :dwellings
-                                     (wds/subset-ds :cols :dwellings))
-                                (vals results))
-          all-households (mapcat #(-> %
-                                      :households
-                                      (wds/subset-ds :cols :households))
-                                 (vals results))
-          all-total-households (mapcat #(-> %
-                                            :total-households
-                                            (wds/subset-ds :cols :households))
-                                       (vals results))]
-      (is (= 326 (count results)))
-      (is (every? pos? all-dwellings))
-      (is (every? #(>= % 0.0) all-households))
-      (is (every? pos? all-total-households)))))
+            all-dwellings (mapcat #(-> %
+                                       :dwellings
+                                       (wds/subset-ds :cols :dwellings))
+                                  (vals results))
+            all-households (mapcat #(-> %
+                                        :households
+                                        (wds/subset-ds :cols :households))
+                                   (vals results))
+            all-total-households (mapcat #(-> %
+                                              :total-households
+                                              (wds/subset-ds :cols :households))
+                                         (vals results))]
+        (is (= 326 (count results)))
+        (is (every? pos? all-dwellings))
+        (is (every? #(>= % 0.0) all-households))
+        (is (every? pos? all-total-households))))))

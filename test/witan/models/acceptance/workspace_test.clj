@@ -7,50 +7,12 @@
             [witan.workspace-api.protocols :as p]
             [witan.workspace-executor.core :as wex]
             [clojure.core.matrix.dataset :as ds]
-            [clojure.data.csv :as data-csv]
-            [schema.coerce :as coerce]
             [witan.datasets :as wds]
-            [clojure.java.io :as io]))
+            [witan.models.test-utils :as tu]))
 
 ;; Testing the model can be run by the workspace executor
 
-;; Helpers
-(defn- load-csv
-  "Loads csv file with each row as a vector.
-   Stored in map separating column-names from data"
-  ([filename]
-   (let [file (io/file filename)]
-     (when (.exists (io/as-file file))
-       (let [parsed-csv (data-csv/read-csv (slurp file))
-             parsed-data (rest parsed-csv)
-             headers (first parsed-csv)]
-         {:column-names headers
-          :columns (vec parsed-data)})))))
-
-(defn apply-row-schema
-  [col-schema csv-data]
-  (let [row-schema (sc/make-row-schema col-schema)]
-    (map (coerce/coercer row-schema coerce/string-coercion-matcher)
-         (:columns csv-data))))
-
-(defn apply-col-names-schema
-  [col-schema csv-data]
-  (let [col-names-schema (sc/make-col-names-schema col-schema)]
-    ((coerce/coercer col-names-schema coerce/string-coercion-matcher)
-     (:column-names csv-data))))
-
-(defn apply-schema-coercion [data schema]
-  {:column-names (apply-col-names-schema schema data)
-   :columns (vec (apply-row-schema schema data))})
-
-(defn csv-to-dataset
-  "Takes in a file path and a schema. Creates a dataset with the file
-   data after coercing it using the schema."
-  [filepath schema]
-  (-> (load-csv filepath)
-      (apply-schema-coercion schema)
-      (as-> {:keys [column-names columns]} (ds/dataset column-names columns))))
-
+;; Run test on test_datasets:
 (def test-data
   {:population ["data/test_datasets/gla_test_popn_barnet.csv" sc/PopulationProjections]
    :dclg-household-popn ["data/test_datasets/dclg_hh_popn_barnet.csv" sc/DclgHouseholdPopulation]
@@ -62,14 +24,11 @@
    :vacancy-dwellings ["data/test_datasets/dclg_vacant_dwellings_barnet.csv" sc/VacancyDwellings]
    :gla-total-households ["data/test_datasets/gla_test_totalhh_barnet.csv" sc/TotalHouseholds]})
 
-(defn read-inputs [input _ schema]
-  (let [[filepath fileschema] (get test-data (:witan/name input))]
-    (csv-to-dataset filepath fileschema)))
-
 (defn add-input-params
   [input]
-  (assoc-in input [:witan/params :fn] (partial read-inputs input)))
+  (assoc-in input [:witan/params :fn] (partial tu/read-inputs test-data input)))
 
+;; Run test on default_datasets:
 (def gss-code "E09000003")
 
 (defn with-gss
@@ -77,8 +36,8 @@
   (str id "_" gss-code ".csv"))
 
 (def local-inputs
-  { :population [(with-gss "./data/default_datasets/population/ons_2014_based_snpp")
-                 sc/PopulationProjections]
+  {:population [(with-gss "./data/default_datasets/population/ons_2014_based_snpp")
+                sc/PopulationProjections]
    :dclg-household-popn
    [(with-gss "./data/default_datasets/household_population/dclg_2014_hh_popn_proj")
     sc/DclgHouseholdPopulation]
@@ -94,19 +53,11 @@
    [(with-gss "./data/default_datasets/vacancy_dwellings/dclg_2015_vacant_dwellings")
     sc/VacancyDwellings]})
 
-(defn read-local-inputs [input _ schema]
-  (let [[filepath fileschema] (get local-inputs (:witan/name input))]
-    (csv-to-dataset filepath fileschema)))
-
 (defn add-params-to-local-input
   [input]
-  (assoc-in input [:witan/params :fn] (partial read-local-inputs input)))
+  (assoc-in input [:witan/params :fn] (partial tu/read-inputs local-inputs input)))
 
-(defn- fp-equals? [x y ε] (< (Math/abs (- x y)) ε))
-
-
-
-;; Test
+;; Tests:
 (deftest household-workspace-test
   (testing "The model is run on the workspace and returns the outputs expected"
     (let [fixed-catalog (mapv #(if (= (:witan/type %) :input)
@@ -119,8 +70,8 @@
           result        (apply merge (wex/run!! workspace' {}))
 
           gla-total-hh (wds/select-from-ds
-                        (read-inputs
-                         {:witan/name :gla-total-households} [] [])
+                        (tu/read-inputs test-data
+                                     {:witan/name :gla-total-households} [] [])
                         {:year {:lt 2040}})
           total-hh (:total-households result)
 
@@ -141,9 +92,9 @@
       (is (= (:shape gla-total-hh) (:shape total-hh)))
       (is (= (:column-names gla-total-hh) (:column-names total-hh)))
 
-      (is (every? #(fp-equals? (wds/subset-ds joined-ds :rows % :cols :households)
-                               (wds/subset-ds joined-ds :rows % :cols :gla-households)
-                               300)
+      (is (every? #(tu/fp-equals? (wds/subset-ds joined-ds :rows % :cols :households)
+                                  (wds/subset-ds joined-ds :rows % :cols :gla-households)
+                                  300)
                   (range (first (:shape joined-ds)))))))
 
   (testing "The model is run using the split data"
