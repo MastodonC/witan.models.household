@@ -11,7 +11,8 @@
   ([filename]
    (let [file (io/file filename)]
      (when (.exists (io/as-file file))
-       (let [parsed-csv (data-csv/read-csv (slurp file))
+       (let [parsed-csv (with-open [in-file (io/reader file)]
+                          (doall (data-csv/read-csv in-file)))
              parsed-data (rest parsed-csv)
              headers (first parsed-csv)]
          {:column-names headers
