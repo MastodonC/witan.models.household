@@ -71,7 +71,7 @@
 
           gla-total-hh (wds/select-from-ds
                         (tu/read-inputs test-data
-                                     {:witan/name :gla-total-households} [] [])
+                                        {:witan/name :gla-total-households} [] [])
                         {:year {:lt 2040}})
           total-hh (:total-households result)
 

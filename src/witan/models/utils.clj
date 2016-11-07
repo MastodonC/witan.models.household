@@ -1,5 +1,5 @@
 (ns ^{:doc "Defines helper functions for the household model."}
-    witan.models.utils
+ witan.models.utils
   (:require [witan.workspace-api.utils :as utils]
             [clojure.core.matrix.dataset :as ds]
             [witan.models.schemas :refer :all]

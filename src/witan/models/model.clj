@@ -31,7 +31,7 @@
 
 (def hh-model-catalog
   "Provides metadata for each step of the household model"
-  [ ;; Input functions
+  [;; Input functions
    {:witan/name :population
     :witan/version "1.0.0"
     :witan/type :input

@@ -21,7 +21,7 @@
 (defn local-inputs
   [gss-code]
   {:population [(with-gss "./data/default_datasets/population/ons_2014_based_snpp" gss-code)
-                 sc/PopulationProjections]
+                sc/PopulationProjections]
    :dclg-household-popn
    [(with-gss "./data/default_datasets/household_population/dclg_2014_hh_popn_proj" gss-code)
     sc/DclgHouseholdPopulation]
@@ -77,13 +77,10 @@
       (let [results (time (reduce merge (map
                                          #(run-workspace (name %))
                                          (keys english-local-authorities))))
-            _ (map spot-negative results)
-
-
-            all-dwellings (mapcat #(-> %
-                                       :dwellings
-                                       (wds/subset-ds :cols :dwellings))
-                                  (vals results))
+            _ (map spot-negative results) all-dwellings (mapcat #(-> %
+                                                                     :dwellings
+                                                                     (wds/subset-ds :cols :dwellings))
+                                                                (vals results))
             all-households (mapcat #(-> %
                                         :households
                                         (wds/subset-ds :cols :households))

@@ -7,7 +7,6 @@
             [clojure.java.io :as io]
             [clojure.edn :as edn]))
 
-
 ;; Testing the defworkflowfns
 ;; Helpers
 (def testing-data
@@ -24,7 +23,6 @@
   (let [data (get test-inputs (:witan/name input))
         data-set (ds/dataset data)]
     data-set))
-
 
 ;; Tests
 (deftest grp-popn-proj-test
@@ -58,8 +56,8 @@
           banded-projections (ds/dataset (:banded-projections test-outputs))
           resident-popn-summed (ds/dataset (:resident-popn-summed test-outputs))
           witan-res-popn (calc-resident-proj resident-popn
-                                                   resident-popn-summed
-                                                   banded-projections)
+                                             resident-popn-summed
+                                             banded-projections)
           correct-output (ds/dataset (:witan-resident-popn test-outputs))
           joined-ds (wds/join witan-res-popn
                               (ds/rename-columns correct-output {:resident-popn
@@ -68,8 +66,8 @@
       (is (= (:shape witan-res-popn) (:shape correct-output)))
       (is (= (:column-names witan-res-popn) (:column-names correct-output)))
       (is (every? #(tu/fp-equals? (wds/subset-ds joined-ds :rows % :cols :resident-popn)
-                               (wds/subset-ds joined-ds :rows % :cols :resident-popn-test)
-                               0.000001)
+                                  (wds/subset-ds joined-ds :rows % :cols :resident-popn-test)
+                                  0.000001)
                   (range (first (:shape joined-ds))))))))
 
 (deftest apportion-popn-by-relationship-test
@@ -112,10 +110,10 @@
       (is (= (:shape witan-inst-popn) (:shape correct-output)))
       (is (= (:column-names witan-inst-popn) (:column-names correct-output)))
       (is (every? #(tu/fp-equals? (wds/subset-ds joined-ds :rows % :cols
-                                              :institutional-popn)
-                               (wds/subset-ds joined-ds :rows % :cols
-                                              :institutional-popn-test)
-                               0.000001)
+                                                 :institutional-popn)
+                                  (wds/subset-ds joined-ds :rows % :cols
+                                                 :institutional-popn-test)
+                                  0.000001)
                   (range (first (:shape joined-ds)))))))
   (testing "The witan institutional population is calculated properly for 75+ popn"
     (let [dclg-inst-popn (read-inputs {:witan/name :dclg-inst-popn-with-75+} [] [])
@@ -135,10 +133,10 @@
       (is (= (:shape witan-inst-popn) (:shape correct-output)))
       (is (= (:column-names witan-inst-popn) (:column-names correct-output)))
       (is (every? #(tu/fp-equals? (wds/subset-ds joined-ds :rows % :cols
-                                              :institutional-popn)
-                               (wds/subset-ds joined-ds :rows % :cols
-                                              :institutional-popn-test)
-                               0.000001)
+                                                 :institutional-popn)
+                                  (wds/subset-ds joined-ds :rows % :cols
+                                                 :institutional-popn-test)
+                                  0.000001)
                   (range (first (:shape joined-ds))))))))
 
 (deftest calc-household-popn-test
@@ -156,9 +154,9 @@
       (is (= (:shape household-popn) (:shape correct-output)))
       (is (= (:column-names household-popn) (:column-names correct-output)))
       (is (every? #(tu/fp-equals? (wds/subset-ds joined-ds :rows % :cols :household-popn)
-                               (wds/subset-ds joined-ds :rows % :cols
-                                              :household-popn-test)
-                               0.000001)
+                                  (wds/subset-ds joined-ds :rows % :cols
+                                                 :household-popn-test)
+                                  0.000001)
                   (range (first (:shape joined-ds))))))))
 
 (deftest calc-households-test
