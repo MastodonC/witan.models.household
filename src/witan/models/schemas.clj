@@ -77,8 +77,6 @@
   (make-ordered-ds-schema [[:gss-code s/Str] [:year s/Int]
                            [:second-homes-rates java.lang.Double]]))
 
-
-
 (def Households
   (make-ordered-ds-schema [[:gss-code s/Str] [:year s/Int] [:sex (s/enum "F" "M")]
                            [:relationship s/Str] [:age-group s/Keyword]

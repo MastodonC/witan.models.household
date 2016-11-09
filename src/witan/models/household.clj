@@ -83,7 +83,10 @@
   [resident-popn resident-popn-summed banded-projections]
   (let [joined-resident-popn (wds/join banded-projections resident-popn
                                        [:gss-code :year :sex :age-group])
-        joined-summed-popn (wds/join resident-popn-summed joined-resident-popn
+        joined-resident-popn-proj (wds/select-from-ds joined-resident-popn
+                                                      {:year {:gte (u/get-first-year
+                                                                    banded-projections)}})
+        joined-summed-popn (wds/join resident-popn-summed joined-resident-popn-proj
                                      [:gss-code :year :sex :age-group])]
     (-> joined-summed-popn
         (wds/add-derived-column :resident-popn
@@ -111,10 +114,11 @@
   (let [popn-by-age-bands (grp-popn-proj population)
         dclg-resident-popn (create-resident-popn dclg-household-popn
                                                  dclg-institutional-popn)
-        dclg-resident-summed (sum-resident-popn dclg-resident-popn)]
-    {:resident-popn (calc-resident-proj dclg-resident-popn
-                                        dclg-resident-summed
-                                        popn-by-age-bands)
+        dclg-resident-summed (sum-resident-popn dclg-resident-popn)
+        resident-popn (calc-resident-proj dclg-resident-popn
+                                          dclg-resident-summed
+                                          popn-by-age-bands)]
+    {:resident-popn resident-popn
      :dclg-resident-popn dclg-resident-popn}))
 
 (defworkflowfn calc-institutional-popn-1-0-0
@@ -139,7 +143,8 @@
                                                    (fn [age res dres dinst]
                                                      (if (some #(= age %)
                                                                [:75_79 :80_84 :85&])
-                                                       (* (/ dinst dres) res) dinst)))
+                                                       (* (wds/safe-divide [dinst dres])
+                                                          res) dinst)))
                            (ds/select-columns [:gss-code :age-group :sex :year
                                                :relationship :institutional-popn]))})
 
@@ -206,7 +211,8 @@
                                                            (u/make-coll
                                                             (wds/subset-ds total-households
                                                                            :cols :year)))
-                                                          (/ vacant-dwellings last-year-dwellings))})
+                                                          (wds/safe-divide
+                                                           [vacant-dwellings last-year-dwellings]))})
         second-home-rates (ds/dataset {:gss-code (u/make-coll
                                                   (wds/subset-ds total-households :cols :gss-code))
                                        :year (u/make-coll
@@ -223,7 +229,8 @@
                        (wds/join total-households [:gss-code :year])
                        (wds/add-derived-column :dwellings
                                                [:households :second-home-rates :vacancy-rates]
-                                               (fn [hh shr vr] (/ hh (- (- 1 vr) shr))))
+                                               (fn [hh shr vr] (wds/safe-divide
+                                                                [hh (- (- 1 vr) shr)])))
                        (ds/select-columns [:gss-code :year :dwellings])
                        (wds/select-from-ds {:year {:gt (u/get-last-year dclg-dwellings)}})))}))
 

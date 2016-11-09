@@ -1,5 +1,5 @@
 (ns ^{:doc "Defines helper functions for the household model."}
-    witan.models.utils
+ witan.models.utils
   (:require [witan.workspace-api.utils :as utils]
             [clojure.core.matrix.dataset :as ds]
             [witan.models.schemas :refer :all]
@@ -29,6 +29,12 @@
 (defn year-column-exists?
   [dataset]
   (contains? (set (:column-names dataset)) :year))
+
+(defn get-first-year
+  [dataset]
+  (utils/property-holds?  dataset year-column-exists?
+                          (str "Dataset must have a year column"))
+  (reduce min (ds/column dataset :year)))
 
 (defn get-last-year
   [dataset]
