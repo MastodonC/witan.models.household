@@ -32,7 +32,7 @@ Let's define a few terms and acronyms we use throughout the library:
 
 This flowchart shows the steps of the household model. Different background colors correspond to the major steps of the model.
 
-![HHM](https://github.com/MastodonC/witan.models.household/blob/feature/master/img/HHM_flowchart.png)
+![HHM](https://github.com/MastodonC/witan.models.household/blob/master/img/HHM_flowchart.png)
 (Please download the image for a more detailed overview of the model)
 
 ###Model steps
